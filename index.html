@@ -29,6 +29,9 @@ canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block}
 #knob{position:absolute;left:34px;top:34px;width:56px;height:56px;border-radius:50%;background:radial-gradient(circle at 50% 58%,var(--ink) 0 9px,transparent 10px),var(--gold);border:4px solid var(--ink);box-shadow:0 4px 0 var(--ink)}
 #fire{position:fixed;right:calc(24px + env(safe-area-inset-right,0px));bottom:calc(40px + env(safe-area-inset-bottom,0px));width:108px;height:108px;border-radius:50%;background:linear-gradient(#6cc4f5,var(--player));border:5px solid var(--ink);box-shadow:0 7px 0 var(--ink),inset 0 -8px 0 #0002;color:#fff;font:700 26px 'Fredoka',sans-serif;text-shadow:0 3px 0 var(--ink)}
 #fire:active{transform:translateY(5px);box-shadow:0 2px 0 var(--ink)}
+#hint{bottom:calc(36px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--cream);color:var(--ink);text-shadow:none;border:4px solid var(--ink);border-radius:99px;padding:6px 16px;box-shadow:0 4px 0 var(--ink);font-size:16px;white-space:nowrap;display:none}
+#hint.on{display:block}
+.desk{display:none}@media (pointer:fine){.desk{display:inline}.touch{display:none}}
 #banner{top:26%;left:0;right:0;text-align:center;font-size:44px}
 #banner.on{animation:pop .5s cubic-bezier(.16,1,.3,1)}
 @keyframes pop{from{transform:scale(.4) translateY(10px);opacity:0}}
@@ -52,10 +55,10 @@ button:focus-visible{outline:3px solid #fff;outline-offset:3px}
 <canvas id="c"></canvas><div id="look"></div>
 <div id="hurt"></div>
 <div class="hud" id="top"><div id="life"><svg viewBox="0 0 34 34" aria-hidden="true"><path d="M17 30C8 23 3 18 3 11.5 3 7 6.5 4 10.5 4c3 0 5 1.6 6.5 4 1.5-2.4 3.5-4 6.5-4C27.5 4 31 7 31 11.5 31 18 26 23 17 30z" fill="#f0604c" stroke="#2a1830" stroke-width="3.5" stroke-linejoin="round"/><path d="M9 9.5c1-1.6 2.6-2 4-1.6" stroke="#fff" stroke-width="2.6" stroke-linecap="round" fill="none"/></svg><div id="bar"><div id="hp"></div></div></div><div id="info">Wave 1 · 0 KO</div></div>
-<div class="hud" id="cross"></div><div class="hud" id="banner"></div>
+<div class="hud" id="hint">Click to aim · Esc to release</div><div class="hud" id="cross"></div><div class="hud" id="banner"></div>
 <div id="stick"><div id="knob"></div></div>
 <button id="fire">FIRE</button>
-<div class="ov on" id="intro"><h1>Block Blast</h1><p>Left thumb walks, drag the right side to aim, tap FIRE. Pop the big goofy heads for double damage!</p><button id="start">Play</button></div>
+<div class="ov on" id="intro"><h1>Block Blast</h1><p><span class="touch">Left thumb walks, drag the right side to aim, tap FIRE.</span><span class="desk">WASD walks, mouse aims, click or Space fires. Esc frees the mouse.</span> Pop the big goofy heads for double damage!</p><button id="start">Play</button></div>
 <div class="ov" id="over"><h1>Oof!</h1><p id="score"></p><button id="again">Play again</button></div>
 <script>
 // =====================================================================
@@ -701,14 +704,21 @@ st.addEventListener('pointerdown',e=>{sid=e.pointerId;st.setPointerCapture(sid);
 st.addEventListener('pointermove',e=>{if(e.pointerId===sid)sv(e)});
 const sr=e=>{if(e.pointerId===sid){sid=null;jx=jz=0;kn.style.left=kn.style.top='34px'}};st.addEventListener('pointerup',sr);st.addEventListener('pointercancel',sr);
 const lk=$('look');
-lk.addEventListener('pointerdown',e=>{lid=e.pointerId;lk.setPointerCapture(lid);lx=e.clientX;ly=e.clientY});
+lk.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'){if(!play)return;if(document.pointerLockElement!==lk)lockMouse();else if(e.button===0)holdF=true;return}
+lid=e.pointerId;lk.setPointerCapture(lid);lx=e.clientX;ly=e.clientY});
 lk.addEventListener('pointermove',e=>{if(e.pointerId!==lid)return;yaw-=(e.clientX-lx)*.006;pitch=Math.max(-1.2,Math.min(1.2,pitch-(e.clientY-ly)*.006));lx=e.clientX;ly=e.clientY});
-const le=e=>{if(e.pointerId===lid)lid=null};lk.addEventListener('pointerup',le);lk.addEventListener('pointercancel',le);
+const le=e=>{if(e.pointerType==='mouse'&&e.button===0&&document.pointerLockElement===lk)holdF=false;if(e.pointerId===lid)lid=null};lk.addEventListener('pointerup',le);lk.addEventListener('pointercancel',le);
+// desktop mouse look: click to capture the mouse, move to aim, hold left button to fire, Esc to release
+const MOUSE=matchMedia('(pointer:fine)').matches,MSENS=.0022;
+function lockMouse(){if(MOUSE&&lk.requestPointerLock)lk.requestPointerLock()}
+document.addEventListener('mousemove',e=>{if(document.pointerLockElement!==lk||!play)return;yaw-=e.movementX*MSENS;pitch=Math.max(-1.2,Math.min(1.2,pitch-e.movementY*MSENS))});
+document.addEventListener('pointerlockchange',()=>{const on=document.pointerLockElement===lk;if(!on)holdF=false;$('hint').classList.toggle('on',MOUSE&&play&&!on)});
 const fb=$('fire');fb.addEventListener('pointerdown',e=>{holdF=true;fb.setPointerCapture(e.pointerId)});
 const fu=()=>holdF=false;fb.addEventListener('pointerup',fu);fb.addEventListener('pointercancel',fu);
 const K={};addEventListener('keydown',e=>{K[e.code]=1;if(e.code==='Space')holdF=true});addEventListener('keyup',e=>{K[e.code]=0;if(e.code==='Space')holdF=false});
 function reset(){en.forEach(e=>S.remove(e.g));en=[];hp=100;prevHp=100;wave=0;kills=0;pl.x=0;pl.z=20;yaw=0;pitch=0;setHp();play=true;pause=0;spawnWave();$('over').classList.remove('on')}
-$('start').onclick=()=>{$('intro').classList.remove('on');reset()};$('again').onclick=reset;
+const go=()=>{reset();$('hint').classList.toggle('on',MOUSE&&document.pointerLockElement!==lk);lockMouse()};
+$('start').onclick=()=>{$('intro').classList.remove('on');go()};$('again').onclick=go;
 
 // =====================================================================
 // 11. Loop (gameplay logic unchanged; visual layer layered around it)
@@ -734,7 +744,7 @@ e.head.scale.set(1+sq+e.hurt*.18,1-sq-e.hurt*.2,1+sq*.5);e.head.rotation.x=-e.hu
 const near=d<4?1:0;e.a1.rotation.x=-Math.sin(e.t)*.6-near*1.4;e.a2.rotation.x=Math.sin(e.t)*.6-near*1.4;e.a1.rotation.z=-.7+Math.sin(e.t*1.3)*.15;e.a2.rotation.z=.7-Math.sin(e.t*1.3)*.15;
 e.blink-=dt;e.eyes.scale.y=e.blink<.1?.15:(e.hurt>.3?.35:1);if(e.blink<0)e.blink=2+Math.random()*3;
 e.sh.position.y=.03-e.g.position.y;e.sh.scale.setScalar(.75-e.g.position.y)}
-if(hp<=0){play=false;holdF=false;$('score').textContent='You made it to wave '+wave+' with '+kills+' KOs.';$('over').classList.add('on')}
+if(hp<=0){play=false;holdF=false;if(document.pointerLockElement)document.exitPointerLock();$('hint').classList.remove('on');$('score').textContent='You made it to wave '+wave+' with '+kills+' KOs.';$('over').classList.add('on')}
 else if(!en.length&&!pause){pause=1;setTimeout(()=>{pause=0;if(play)spawnWave()},1800)}}
 // KO: squash, then pop into stars
 for(let i=dying.length-1;i>=0;i--){const d=dying[i];d.t+=dt;const k=d.t/.22,e=d.e;

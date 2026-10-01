@@ -29,7 +29,7 @@ Needs internet for two CDN resources: three.js r128 and the Fredoka font (see Co
 | Arena | Flat, clamped to ±38 units; 12 cover objects (same positions/radii as the old pillars) + the Wishing Star as cover |
 | Score | KO count and wave number only; no persistence |
 
-**Controls:** left thumbstick moves, drag anywhere on the right to aim, FIRE button (hold = auto-fire). Desktop: WASD + Space (no mouse look yet).
+**Controls:** left thumbstick moves, drag anywhere on the right to aim, FIRE button (hold = auto-fire). Desktop: WASD to move; click to capture the mouse, move to aim, hold left-click or Space to fire, Esc to release (pointer lock, sensitivity `MSENS`).
 
 ## Art direction
 
@@ -97,7 +97,7 @@ Everything is still global, with no modules or state object. Splitting it up is 
 - **Hit-shape changes (visual, not numbers):** cover silhouettes now match the new art instead of boxes (e.g. you can shoot past a mushroom stem under its cap). The star plinth and lanterns now block shots below the floating star (they sit inside the star's existing collision circle). Enemies grow in over ~0.4 s when they spawn. KO'd enemies play a 0.22 s squash after they've already been removed from play.
 - In portrait the blaster sits partly behind the FIRE button (it's scaled down for portrait, but still overlaps).
 - Ground texture is 2048² over 170 units, so it's soft up close (the plaza has its own hi-res decal).
-- No pause, no sound, no mouse look on desktop, no landscape-specific layout.
+- No pause, no sound, no landscape-specific layout.
 - Enemies can stack on one another and cluster; there is no separation steering.
 - The start overlay is the only place the controls are explained.
 
