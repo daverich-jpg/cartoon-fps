@@ -40,8 +40,8 @@ canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block}
 .ov.on>*{animation:rise .55s cubic-bezier(.16,1,.3,1) backwards}
 .ov.on>:nth-child(2){animation-delay:.1s}.ov.on>:nth-child(3){animation-delay:.2s}
 @keyframes rise{from{opacity:0;transform:translateY(14px)}}
-.ov h1{font-size:54px;margin:0;color:var(--cream);text-shadow:-3px -3px 0 var(--ink),3px -3px 0 var(--ink),-3px 3px 0 var(--ink),3px 3px 0 var(--ink),0 8px 0 var(--ink)}
-.ov h1::before,.ov h1::after{content:'★';color:var(--gold);font-size:30px;margin:0 8px;vertical-align:middle}
+.ov h1{font-size:min(54px,11.5vw);white-space:nowrap;margin:0;color:var(--cream);text-shadow:-3px -3px 0 var(--ink),3px -3px 0 var(--ink),-3px 3px 0 var(--ink),3px 3px 0 var(--ink),0 8px 0 var(--ink)}
+.ov h1::before,.ov h1::after{content:'★';color:var(--gold);font-size:.55em;margin:0 8px;vertical-align:middle}
 .ov p{margin:0;max-width:320px;font-size:18px;color:var(--ink);background:var(--cream);border:4px solid var(--ink);border-radius:20px;padding:12px 16px;box-shadow:0 5px 0 var(--ink)}
 .ov button{font:700 24px 'Fredoka',sans-serif;background:linear-gradient(#ffd96a,var(--gold));color:var(--ink);border:5px solid var(--ink);border-radius:99px;padding:12px 38px;box-shadow:0 7px 0 var(--ink)}
 .ov button:active{transform:translateY(5px);box-shadow:0 2px 0 var(--ink)}
@@ -88,7 +88,9 @@ let gunBase={x:.3,y:-.28};
 let PR=Math.min(devicePixelRatio,2),frames=0,frameAcc=0;
 function rs(){R.setPixelRatio(PR);R.setSize(innerWidth,innerHeight,false);
   C.aspect=GC.aspect=innerWidth/innerHeight;C.updateProjectionMatrix();GC.updateProjectionMatrix();
-  const hw=.62*Math.tan(29*Math.PI/180)*GC.aspect;gunBase={x:Math.min(.27,hw*.5+.05),y:GC.aspect<1?-.24:-.26}}
+  const hw=.62*Math.tan(29*Math.PI/180)*GC.aspect,port=GC.aspect<1;gunBase={x:Math.min(.27,hw*.55+.04),y:port?-.27:-.26};
+  // portrait phones have a narrow horizontal view: shrink the rig so it never covers the FIRE button
+  if(typeof rig!=='undefined')rig.scale.setScalar(.85*Math.min(1,.42+GC.aspect*.5))}
 rs();addEventListener('resize',rs);
 
 const SUN=new THREE.Vector3(.5,.62,.6).normalize();
@@ -602,7 +604,7 @@ anim.push(t=>critters.forEach(c=>{const a=t*.25+c.p,hop=Math.abs(Math.sin(t*4+c.
 GS.add(new THREE.HemisphereLight(0xeaf4ff,0xc9a88a,.55));{const l=new THREE.DirectionalLight(0xfff0da,.65);l.position.set(.6,1,.7);GS.add(l)}
 const gun=new THREE.Group();gun.position.set(.3,-.28,-.6);GS.add(gun);
 // rig turns the blaster's side profile toward the viewer so it reads as a toy, not a blob
-const rig=new THREE.Group();rig.rotation.set(.02,.2,-.05);rig.scale.setScalar(.85);gun.add(rig);
+const rig=new THREE.Group();rig.rotation.set(.02,.2,-.05);rig.scale.setScalar(.85);gun.add(rig);rs();
 {const b=new B();
  // barrel along +y in lathe space, rotated to point down -z
  b.push(M(0,0,0,-Math.PI/2,0,0));
