@@ -675,7 +675,7 @@ function mkEnemy(){const g=new THREE.Group(),meshes=[],col=P.enemy[Math.random()
   return{g,meshes,l1,l2,a1,a2,body,head,eyes,sh,hp:3,t:Math.random()*6,born:0,blink:1+Math.random()*3,hurt:0}}
 const SHG=new THREE.PlaneGeometry(2,2).rotateX(-Math.PI/2);
 const SHM2=new THREE.MeshBasicMaterial({map:shadowTex,color:0x6b4f86,transparent:true,opacity:.45,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2});
-function setHp(){const h=$('hp');if(hp<prevHp){const v=$('hurt');v.classList.add('on');setTimeout(()=>v.classList.remove('on'),120)}prevHp=hp;h.style.width=Math.max(hp,0)+'%';h.style.background=hp<35?'var(--coral)':'var(--mint)'}
+function setHp(){const h=$('hp');if(hp<prevHp){A.hurt();const v=$('hurt');v.classList.add('on');setTimeout(()=>v.classList.remove('on'),120)}prevHp=hp;h.style.width=Math.max(hp,0)+'%';h.style.background=hp<35?'var(--coral)':'var(--mint)'}
 let prevHp=100;
 function spawnWave(){wave++;const n=2+wave*2;for(let i=0;i<n;i++){const e=mkEnemy(),a=Math.random()*6.28,d=24+Math.random()*10;e.g.position.set(Math.cos(a)*d,0,Math.sin(a)*d);e.sp=2+wave*.25;e.meshes.forEach(m=>m.userData.e=e);S.add(e.g);en.push(e)}
   const b=$('banner');b.textContent='Wave '+wave;b.classList.remove('on');void b.offsetWidth;b.classList.add('on');setTimeout(()=>b.textContent='',1600);info()}
@@ -684,7 +684,7 @@ function info(){$('info').textContent='Wave '+wave+' · '+kills+' KO'}
 // =====================================================================
 // 12. Audio: pure WebAudio synthesis (no files). Whistle + acoustic strum loop, footsteps, blaster.
 // =====================================================================
-const A=(()=>{let ctx=null,master,music,sfx,noiseBuf,muted=false,started=false,timer=null;
+const A=(()=>{let ctx=null,master,music,sfx,noiseBuf,muted=false,started=false,timer=null,lastHurt=-1;
   try{muted=localStorage.getItem('bb-muted')==='1'}catch(e){}
   const mtof=m=>440*Math.pow(2,(m-69)/12);
   function init(){if(ctx)return;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;ctx=new AC();
@@ -747,6 +747,14 @@ const A=(()=>{let ctx=null,master,music,sfx,noiseBuf,muted=false,started=false,t
       else if(surface===1){noise(t,.06,.2,'bandpass',1400*r,1.2,.8);tone('sine',110*r,70,t,.12,.004,.06)}
       else{noise(t,.03,.18,'bandpass',2600*r,3);tone('sine',190*r,150,t,.1,.002,.04)}},
     hit(head){if(!ok())return;const t=ctx.currentTime;tone('sine',head?880:660,head?1320:880,t+.02,.2,.005,.08)},
+    // cartoon "oof": soft body thud + a wobbly, falling "wah" (playful, not painful); throttled when several hit at once
+    hurt(){if(!ok()||ctx.currentTime-lastHurt<.15)return;const t=ctx.currentTime;lastHurt=t;
+      tone('sine',150,55,t,.5,.004,.16);noise(t,.07,.18,'lowpass',500,.8,.7);
+      const o=ctx.createOscillator(),f=ctx.createBiquadFilter(),g=ctx.createGain(),w=ctx.createOscillator(),wg=ctx.createGain();
+      o.type='sawtooth';o.frequency.setValueAtTime(440,t+.02);o.frequency.exponentialRampToValueAtTime(170,t+.3);
+      w.frequency.value=18;wg.gain.value=22;w.connect(wg);wg.connect(o.frequency);
+      f.type='lowpass';f.frequency.setValueAtTime(1800,t);f.frequency.exponentialRampToValueAtTime(500,t+.3);f.Q.value=4;
+      env(g,t+.02,.2,.02,.28);o.connect(f);f.connect(g);g.connect(sfx);o.start(t+.02);w.start(t+.02);o.stop(t+.36);w.stop(t+.36)},
     ko(){if(!ok())return;const t=ctx.currentTime;[1568,1976,2349].forEach((f,i)=>tone('sine',f,0,t+i*.05,.16,.004,.14));noise(t,.12,.14,'bandpass',900,1.5)},
     get muted(){return muted},get ctx(){return ctx},get out(){return master},
     toggle(){muted=!muted;try{localStorage.setItem('bb-muted',muted?'1':'0')}catch(e){}if(ctx){if(muted)ctx.suspend();else{this.start();ctx.resume()}}return muted},
