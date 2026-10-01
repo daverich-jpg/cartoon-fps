@@ -24,9 +24,10 @@ canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block}
 #hp{height:100%;width:100%;background:var(--mint);border-radius:99px;transition-property:width,background-color;transition-duration:.15s;box-shadow:inset 0 -5px 0 #0002,inset 0 4px 0 #fff6}
 #info{background:var(--cream);color:var(--ink);text-shadow:none;border:4px solid var(--ink);border-radius:99px;padding:3px 14px;box-shadow:0 4px 0 var(--ink);font-variant-numeric:tabular-nums}
 #right{display:flex;align-items:center;gap:8px}
-#snd{pointer-events:auto;width:40px;height:40px;padding:0;border-radius:50%;background:var(--cream);border:4px solid var(--ink);box-shadow:0 4px 0 var(--ink);display:grid;place-items:center;cursor:pointer}
+#pz,#snd{pointer-events:auto;width:40px;height:40px;padding:0;border-radius:50%;background:var(--cream);border:4px solid var(--ink);box-shadow:0 4px 0 var(--ink);display:grid;place-items:center;cursor:pointer}
 #snd svg{width:22px;height:22px;grid-area:1/1}#snd .x,#snd.off .on{display:none}#snd.off .x{display:block}
-#snd:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+#pz svg{width:22px;height:22px}
+#pz:active,#snd:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
 #cross{top:50%;left:50%;width:24px;height:24px;margin:-12px;border:4px solid #fff;border-radius:50%;box-shadow:0 0 0 3px var(--ink),inset 0 0 0 3px var(--ink);text-shadow:none;transition-property:transform,border-color;transition-duration:.09s;transition-timing-function:cubic-bezier(.2,0,0,1)}
 #cross.on{border-color:var(--tangerine)}
 #cross.hit{border-color:var(--tangerine);transform:scale(1.6)}
@@ -40,6 +41,12 @@ canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block}
 #tip{top:calc(62px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);background:var(--cream);color:var(--ink);text-shadow:none;border:4px solid var(--ink);border-radius:99px;padding:8px 18px;box-shadow:0 5px 0 var(--ink);font-size:18px;white-space:nowrap;display:none}
 #tip.on{display:block;animation:tipIn .45s cubic-bezier(.16,1,.3,1)}#tip.done{background:var(--mint)}
 @keyframes tipIn{from{opacity:0;transform:translate(-50%,-8px) scale(.9)}}
+.card{display:grid;gap:12px;min-width:min(320px,86vw);text-align:left;color:var(--ink);background:var(--cream);border:4px solid var(--ink);border-radius:20px;padding:14px 18px;box-shadow:0 5px 0 var(--ink);font-size:18px}
+.card label{display:flex;align-items:center;gap:10px;cursor:pointer}.card .sl{justify-content:space-between}
+.card input[type=checkbox]{width:24px;height:24px;accent-color:var(--player)}.card input[type=range]{width:55%;accent-color:var(--player)}
+.card small{font-size:14px;opacity:.75}
+.ov button:disabled{filter:saturate(.35);opacity:.85;box-shadow:0 7px 0 var(--ink)}
+body.lefty #stick{left:auto;right:calc(22px + env(safe-area-inset-right,0px))}body.lefty #fire{right:auto;left:calc(24px + env(safe-area-inset-left,0px))}
 .row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}.ov button.ghost{background:var(--cream)}
 .best{display:inline-block;background:var(--gold);border:3px solid var(--ink);border-radius:99px;padding:0 10px;margin-left:8px;font-size:15px}
 #score small{font-size:15px;opacity:.8}
@@ -69,11 +76,18 @@ button:focus-visible{outline:3px solid #fff;outline-offset:3px}
 </style></head><body>
 <canvas id="c"></canvas><div id="look"></div>
 <div id="hurt"></div><div id="threat"></div>
-<div class="hud" id="top"><div id="life"><svg viewBox="0 0 34 34" aria-hidden="true"><path d="M17 30C8 23 3 18 3 11.5 3 7 6.5 4 10.5 4c3 0 5 1.6 6.5 4 1.5-2.4 3.5-4 6.5-4C27.5 4 31 7 31 11.5 31 18 26 23 17 30z" fill="#f0604c" stroke="#2a1830" stroke-width="3.5" stroke-linejoin="round"/><path d="M9 9.5c1-1.6 2.6-2 4-1.6" stroke="#fff" stroke-width="2.6" stroke-linecap="round" fill="none"/></svg><div id="bar"><div id="hp"></div></div></div><div id="right"><div id="info">Wave 1 · 0 KO</div><button id="snd" aria-label="Mute sound" aria-pressed="false"><svg class="on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h3l5-4v14l-5-4H4z" fill="#2a1830" stroke="#2a1830" stroke-width="2" stroke-linejoin="round"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" fill="none" stroke="#2a1830" stroke-width="2.4" stroke-linecap="round"/></svg><svg class="x" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h3l5-4v14l-5-4H4z" fill="#2a1830" stroke="#2a1830" stroke-width="2" stroke-linejoin="round"/><path d="M16 9.5l5 5M21 9.5l-5 5" stroke="#f0604c" stroke-width="2.6" stroke-linecap="round"/></svg></button></div></div>
-<div class="hud" id="hint">Click to aim · Esc to release</div><div class="hud" id="tip" role="status" aria-live="polite"></div><div class="hud" id="cross"></div><div class="hud" id="banner"></div>
+<div class="hud" id="top"><div id="life"><svg viewBox="0 0 34 34" aria-hidden="true"><path d="M17 30C8 23 3 18 3 11.5 3 7 6.5 4 10.5 4c3 0 5 1.6 6.5 4 1.5-2.4 3.5-4 6.5-4C27.5 4 31 7 31 11.5 31 18 26 23 17 30z" fill="#f0604c" stroke="#2a1830" stroke-width="3.5" stroke-linejoin="round"/><path d="M9 9.5c1-1.6 2.6-2 4-1.6" stroke="#fff" stroke-width="2.6" stroke-linecap="round" fill="none"/></svg><div id="bar"><div id="hp"></div></div></div><div id="right"><div id="info">Wave 1 · 0 KO</div><button id="pz" class="ibtn" aria-label="Pause"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1.5" fill="#2a1830"/><rect x="14" y="5" width="4" height="14" rx="1.5" fill="#2a1830"/></svg></button><button id="snd" class="ibtn" aria-label="Mute sound" aria-pressed="false"><svg class="on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h3l5-4v14l-5-4H4z" fill="#2a1830" stroke="#2a1830" stroke-width="2" stroke-linejoin="round"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" fill="none" stroke="#2a1830" stroke-width="2.4" stroke-linecap="round"/></svg><svg class="x" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h3l5-4v14l-5-4H4z" fill="#2a1830" stroke="#2a1830" stroke-width="2" stroke-linejoin="round"/><path d="M16 9.5l5 5M21 9.5l-5 5" stroke="#f0604c" stroke-width="2.6" stroke-linecap="round"/></svg></button></div></div>
+<div class="hud" id="hint">Click to aim · Esc to pause</div><div class="hud" id="tip" role="status" aria-live="polite"></div><div class="hud" id="cross"></div><div class="hud" id="banner"></div>
 <div id="stick"><div id="knob"></div></div>
 <button id="fire">FIRE</button>
-<div class="ov on" id="intro"><h1>Block Blast</h1><p>Pop the goofy Grinnies before they get you, and feed their sparkles to the Wishing Star!</p><button id="start">Play</button></div>
+<div class="ov on" id="intro"><h1>Block Blast</h1><p>Pop the goofy Grinnies before they get you, and feed their sparkles to the Wishing Star!</p><button id="start" disabled>Building the village…</button></div>
+<div class="ov" id="paused" role="dialog" aria-modal="true" aria-labelledby="pt"><h1 id="pt">Paused</h1>
+<div class="card"><label class="sl">Look speed <input type="range" id="sens" min="0.5" max="2" step="0.1"></label>
+<label class="tg"><input type="checkbox" id="assist"> Aim assist <small>(touch)</small></label>
+<label class="tg"><input type="checkbox" id="lefty"> Left-handed controls</label>
+<label class="tg"><input type="checkbox" id="sound"> Sound</label>
+<small class="desk">WASD move · mouse aim · click/Space fire · M mute · P or Esc pause</small></div>
+<button id="resume">Resume</button></div>
 <div class="ov" id="over"><h1>Oof!</h1><p id="score"></p><div class="row"><button id="again">Play again</button><button id="share" class="ghost">Share</button></div></div>
 <script>
 // =====================================================================
@@ -818,8 +832,8 @@ function stepWords(dt){for(const p of wordPool){if(!p.on)continue;p.t+=dt;const 
   const pop=k<.15?k/.15*1.15:1.15-.15*Math.min(1,(k-.15)/.15);p.sp.scale.set(p.size*pop,p.size*pop*.5,1);p.sp.position.y+=dt*.8;p.sp.material.opacity=k>.7?1-(k-.7)/.3:1}}
 // first-run onboarding: each control is taught at the moment it's needed, then ticked off (saved once done)
 let tutDone=false;try{tutDone=localStorage.getItem('bb-tut')==='1'}catch(e){}
-const TUT=[{t:['Drag the right side to look around','Move the mouse to look around'],done:s=>s.look>.9},
-  {t:['Left thumb on the stick to walk','Use WASD to walk'],done:s=>s.walk>2.5},
+const TUT=[{t:['Drag the screen to look around','Move the mouse to look around'],done:s=>s.look>.9},
+  {t:['Thumb on the stick to walk','Use WASD to walk'],done:s=>s.walk>2.5},
   {t:['Hold FIRE, slide your thumb to aim','Click or press Space to fire'],done:s=>s.hits>0},
   {t:['Aim for the big heads: double damage!','Aim for the big heads: double damage!'],done:s=>s.heads>0||s.time>7}];
 let tut=null;
@@ -846,6 +860,22 @@ function gameOver(){const nb=wave>best.wave||(wave===best.wave&&kills>best.kills
   const acc=shots?Math.round(hitsN/shots*100):0;
   const ko=n=>n+(n===1?' KO':' KOs');$('score').innerHTML='Wave <b>'+wave+'</b> · <b>'+ko(kills)+'</b> · '+acc+'% hits'+(nb?'<span class="best">New best!</span>':'<br><small>Your best: wave '+best.wave+' · '+ko(best.kills)+'</small>');
   $('tip').className='hud';tut=null}
+// settings (saved): look speed, touch aim assist, left-handed layout
+const SET={sens:1,assist:true,lefty:false};try{Object.assign(SET,JSON.parse(localStorage.getItem('bb-set'))||{})}catch(e){}
+const saveSet=()=>{try{localStorage.setItem('bb-set',JSON.stringify(SET))}catch(e){}};
+function applySet(){document.body.classList.toggle('lefty',SET.lefty);$('sens').value=SET.sens;$('assist').checked=SET.assist;$('lefty').checked=SET.lefty}
+$('sens').addEventListener('input',e=>{SET.sens=+e.target.value;saveSet()});
+$('assist').addEventListener('change',e=>{SET.assist=e.target.checked;saveSet()});
+$('lefty').addEventListener('change',e=>{SET.lefty=e.target.checked;applySet();saveSet()});
+// pause: HUD button, P key, Esc (losing the mouse lock), or leaving the tab
+let paused=false;
+function setPause(on){if(on&&!play)return;paused=on;$('paused').classList.toggle('on',on);
+  if(on){holdF=false;jx=jz=0;$('knob').style.left=$('knob').style.top='34px';$('sound').checked=!A.muted;if(document.pointerLockElement)document.exitPointerLock();$('hint').classList.remove('on')}
+  else{lockMouse();$('hint').classList.toggle('on',MOUSE&&document.pointerLockElement!==lk)}}
+$('pz').addEventListener('click',()=>setPause(true));$('resume').addEventListener('click',()=>setPause(false));
+$('sound').addEventListener('change',e=>{if(e.target.checked===A.muted){A.toggle();syncSnd()}});
+addEventListener('keydown',e=>{if((e.code==='KeyP'||e.code==='Escape')&&play&&!document.pointerLockElement)setPause(!paused)});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&play)setPause(true)});
 // controls
 let jx=0,jz=0,sid=null,lid=null,lx=0,ly=0;const st=$('stick'),kn=$('knob');
 function sv(e){const r=st.getBoundingClientRect();let dx=e.clientX-r.left-64,dy=e.clientY-r.top-64;const d=Math.hypot(dx,dy),m=60;if(d>m){dx*=m/d;dy*=m/d}kn.style.left=34+dx+'px';kn.style.top=34+dy+'px';jx=dx/m;jz=dy/m}
@@ -855,7 +885,7 @@ const sr=e=>{if(e.pointerId===sid){sid=null;jx=jz=0;kn.style.left=kn.style.top='
 const lk=$('look');
 // touch look: drag the right side, or drag while holding FIRE (aim while shooting). aimSlow eases sensitivity over targets.
 const TSENS=.006;let touchAim=!matchMedia('(pointer:fine)').matches,aimSlow=1;
-function look(dx,dy){const k=TSENS*aimSlow;yaw-=dx*k;pitch=Math.max(-1.2,Math.min(1.2,pitch-dy*k))}
+function look(dx,dy){if(paused)return;const k=TSENS*aimSlow*SET.sens;yaw-=dx*k;pitch=Math.max(-1.2,Math.min(1.2,pitch-dy*k))}
 const cap=(el,id)=>{try{el.setPointerCapture(id)}catch(e){}};
 lk.addEventListener('pointerdown',e=>{touchAim=e.pointerType!=='mouse';if(e.pointerType==='mouse'){if(!play)return;if(document.pointerLockElement!==lk)lockMouse();else if(e.button===0)holdF=true;return}
 lid=e.pointerId;cap(lk,lid);lx=e.clientX;ly=e.clientY});
@@ -864,11 +894,11 @@ const le=e=>{if(e.pointerType==='mouse'&&e.button===0&&document.pointerLockEleme
 // desktop mouse look: click to capture the mouse, move to aim, hold left button to fire, Esc to release
 const MOUSE=matchMedia('(pointer:fine)').matches,MSENS=.0022;
 function lockMouse(){if(!MOUSE||!lk.requestPointerLock)return;try{const p=lk.requestPointerLock();if(p&&p.catch)p.catch(()=>{})}catch(e){}}
-document.addEventListener('mousemove',e=>{if(document.pointerLockElement!==lk||!play)return;touchAim=false;yaw-=e.movementX*MSENS;pitch=Math.max(-1.2,Math.min(1.2,pitch-e.movementY*MSENS))});
-document.addEventListener('pointerlockchange',()=>{const on=document.pointerLockElement===lk;if(!on)holdF=false;$('hint').classList.toggle('on',MOUSE&&play&&!on)});
+document.addEventListener('mousemove',e=>{if(document.pointerLockElement!==lk||!play||paused)return;touchAim=false;const k=MSENS*SET.sens;yaw-=e.movementX*k;pitch=Math.max(-1.2,Math.min(1.2,pitch-e.movementY*k))});
+document.addEventListener('pointerlockchange',()=>{const on=document.pointerLockElement===lk;if(!on)holdF=false;if(!on&&play&&!paused&&MOUSE){setPause(true);return}$('hint').classList.toggle('on',MOUSE&&play&&!on)});
 // FIRE is also a look pad: press to shoot, slide the same thumb to track
 const fb=$('fire');let fid=null,fpx=0,fpy=0;
-fb.addEventListener('pointerdown',e=>{holdF=true;fid=e.pointerId;fpx=e.clientX;fpy=e.clientY;cap(fb,e.pointerId);if(e.pointerType!=='mouse')touchAim=true});
+fb.addEventListener('pointerdown',e=>{if(paused)return;holdF=true;fid=e.pointerId;fpx=e.clientX;fpy=e.clientY;cap(fb,e.pointerId);if(e.pointerType!=='mouse')touchAim=true});
 fb.addEventListener('pointermove',e=>{if(e.pointerId!==fid)return;look(e.clientX-fpx,e.clientY-fpy);fpx=e.clientX;fpy=e.clientY});
 const fu=e=>{if(e.pointerId===fid)fid=null;holdF=false};fb.addEventListener('pointerup',fu);fb.addEventListener('pointercancel',fu);
 // aim assist (touch only): nearest visible Grinnie inside a small cone around the crosshair.
@@ -880,10 +910,10 @@ function aimAssist(dt){let best=null,bR=1,bey=0,bep=0,bra=0,berr=0;
     if(r<bR){bR=r;best=e;bey=ey;bep=ep;bra=ra;berr=err}}
   if(best){_o.set(pl.x,1.6,pl.z);_d.set(best.g.position.x-pl.x,best.g.position.y+AA.y-1.6,best.g.position.z-pl.z);const L=_d.length();_ray.set(_o,_d.normalize());_ray.far=L-.7;if(_ray.intersectObjects(obsM).length)best=null}
   const on=!!best&&berr<bra;if(on!==onTarget){onTarget=on;$('cross').classList.toggle('on',on)}
-  const slowT=best&&touchAim?1-AA.slow*(1-.5*bR):1;aimSlow+=(slowT-aimSlow)*Math.min(1,dt*14);
-  if(best&&touchAim&&holdF){const k=Math.min(1,AA.pull*dt),c=AA.maxRate*dt;yaw+=Math.max(-c,Math.min(c,bey*k));pitch=Math.max(-1.2,Math.min(1.2,pitch+Math.max(-c,Math.min(c,bep*k))))}}
-const K={};addEventListener('keydown',e=>{K[e.code]=1;if(e.code==='Space')holdF=true});addEventListener('keyup',e=>{K[e.code]=0;if(e.code==='Space')holdF=false});
-function reset(){shots=hitsN=0;starCharge=0;tutStart();en.forEach(e=>S.remove(e.g));en=[];hp=100;prevHp=100;wave=0;kills=0;pl.x=0;pl.z=20;yaw=0;pitch=0;setHp();play=true;pause=0;spawnWave();$('over').classList.remove('on')}
+  const assist=touchAim&&SET.assist,slowT=best&&assist?1-AA.slow*(1-.5*bR):1;aimSlow+=(slowT-aimSlow)*Math.min(1,dt*14);
+  if(best&&assist&&holdF){const k=Math.min(1,AA.pull*dt),c=AA.maxRate*dt;yaw+=Math.max(-c,Math.min(c,bey*k));pitch=Math.max(-1.2,Math.min(1.2,pitch+Math.max(-c,Math.min(c,bep*k))))}}
+const K={};addEventListener('keydown',e=>{K[e.code]=1;if(e.code==='Space'&&!paused)holdF=true});addEventListener('keyup',e=>{K[e.code]=0;if(e.code==='Space')holdF=false});
+function reset(){paused=false;$('paused').classList.remove('on');shots=hitsN=0;starCharge=0;tutStart();en.forEach(e=>S.remove(e.g));en=[];hp=100;prevHp=100;wave=0;kills=0;pl.x=0;pl.z=20;yaw=0;pitch=0;setHp();play=true;pause=0;spawnWave();$('over').classList.remove('on')}
 const go=()=>{reset();$('hint').classList.toggle('on',MOUSE&&document.pointerLockElement!==lk);lockMouse()};
 $('share').onclick=async()=>{const text='I reached wave '+wave+' with '+kills+' KOs in Block Blast ⭐ Can you beat me?',url=location.href.split('#')[0],b=$('share');
   try{if(navigator.share){await navigator.share({title:'Block Blast',text,url});return}await navigator.clipboard.writeText(text+' '+url);b.textContent='Link copied!';setTimeout(()=>b.textContent='Share',1600)}catch(e){if(e&&e.name==='AbortError')return;b.textContent='Couldn’t share';setTimeout(()=>b.textContent='Share',1600)}};
@@ -899,7 +929,7 @@ cr.rotation.y+=dt*1.2;cr.position.y=2.6+Math.sin(t/500)*.2;
 for(const a of anim)a(ts,dt);
 if(!play&&$('intro').classList.contains('on')){yaw=Math.sin(ts*.13)*.55;pitch=-.04+Math.sin(ts*.21)*.04}
 let f=0,r=0;
-if(play){const px0=pl.x,pz0=pl.z,dl=Math.abs(yaw-lastYaw)+Math.abs(pitch-lastPitch);f=-jz+(K.KeyW?1:0)-(K.KeyS?1:0);r=jx+(K.KeyD?1:0)-(K.KeyA?1:0);
+if(play&&!paused){const px0=pl.x,pz0=pl.z,dl=Math.abs(yaw-lastYaw)+Math.abs(pitch-lastPitch);f=-jz+(K.KeyW?1:0)-(K.KeyS?1:0);r=jx+(K.KeyD?1:0)-(K.KeyA?1:0);
 pl.x+=(-Math.sin(yaw)*f+Math.cos(yaw)*r)*6*dt;pl.z+=(-Math.cos(yaw)*f-Math.sin(yaw)*r)*6*dt;push(pl,.5);
 tutStep(dt,dl,Math.hypot(pl.x-px0,pl.z-pz0));
 fireT-=dt;if(holdF&&fireT<=0){fireT=.2;shoot()}
@@ -934,7 +964,7 @@ kick=Math.max(0,kick-dt*.6);
 gun.position.set(gunBase.x+Math.sin(bobT)*.014*mv+Math.max(-.05,Math.min(.05,swayX)),gunBase.y-Math.abs(Math.cos(bobT))*.012*mv+Math.sin(ts*1.6)*.003-Math.max(-.04,Math.min(.04,swayY)),-.6+kick);
 gun.rotation.set(kick*2.2+Math.max(-.05,Math.min(.05,swayY))*.5,Math.max(-.08,Math.min(.08,swayX))*.8,Math.sin(bobT*.5)*.02*mv);
 goo.rotation.y+=dt*3;goo.scale.set(1+Math.sin(ts*4)*.12,1-Math.sin(ts*4)*.1+kick*2,1);
-if(play)aimAssist(dt);else if(onTarget){onTarget=false;$('cross').classList.remove('on')}
+if(play&&!paused)aimAssist(dt);else if(onTarget){onTarget=false;$('cross').classList.remove('on')}
 stepWords(dt);stepFeeds(dt);updatePips();shake=Math.max(0,shake-dt*2.6);
 C.position.set(pl.x+(Math.random()-.5)*shake*.14,1.6+(Math.random()-.5)*shake*.1,pl.z+(Math.random()-.5)*shake*.14);C.rotation.set(pitch,yaw,(Math.random()-.5)*shake*.03);sky.position.copy(C.position);
 R.clear();R.render(S,C);R.clearDepth();R.render(GS,GC);
@@ -942,4 +972,5 @@ R.clear();R.render(S,C);R.clearDepth();R.render(GS,GC);
 if(ts>5){frames++;frameAcc+=dt;if(frameAcc>2){slowWin=frameAcc/frames>1/45?slowWin+1:0;if(slowWin>=2&&PR>1){PR=Math.max(1,PR-.25);rs();slowWin=0}frames=0;frameAcc=0}}
 requestAnimationFrame(loop)}
 requestAnimationFrame(loop);
+applySet();requestAnimationFrame(()=>requestAnimationFrame(()=>{const b=$('start');b.disabled=false;b.textContent='Play'}));
 </script></body></html>

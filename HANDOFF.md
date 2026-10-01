@@ -37,6 +37,15 @@ Needs internet for two CDN resources: three.js r128 and the Fredoka font (see Co
 
 Mouse aiming gets no assist. Every input gets the **on-target crosshair** (the ring turns tangerine when a shot would hit). Tested by stepping the loop: a 0.10 rad error closes to 0.005 within 1 s of firing; no pull for mouse, when not firing, beyond the cone, or behind cover. Feel on a real phone is **not yet tested**: tune `AA.slow`/`AA.pull` after playtests.
 
+**UX systems (from the gap analysis, Oct 2026):**
+- **Threat awareness:** tangerine damage-direction arcs around the crosshair; edge chevrons for Grinnies within 16 m that are off-screen; the attacker lunges as it hits.
+- **Feel:** BONK! on head hits, POP! on KOs (comic word sprites), 50 ms hit-stop on KO, hurt camera shake (off under `prefers-reduced-motion`).
+- **Onboarding:** on the first run, prompts teach look → walk → fire → head shots, each ticked off when performed. Grinnies hold still during look/walk (max 15 s). The completed state is saved in `bb-tut` (clear it in localStorage to replay).
+- **Star role:** each KO sends sparkles into the Wishing Star; it glows brighter through the run (`starCharge`).
+- **End screen:** wave, KOs, hit %, saved best (`bb-best`) with a "New best!" badge, and Share (Web Share API, falling back to copying the link).
+- **Pause & settings:** pause via the HUD button, P, Esc (losing the mouse lock), or hiding the tab. Settings, saved in `bb-set`: look speed 0.5–2×, touch aim assist on/off, left-handed (swaps stick and FIRE), sound.
+- **Loading:** Play reads "Building the village…" and stays disabled until the first frame renders.
+
 ## Art direction
 
 **Goal:** it should feel like playing an FPS inside an animated cartoon: illustrative, warm, whimsical, slightly surreal. Not low-poly assets, not realistic. Inspired by the *feeling* of modern whimsical cartoons; no copied characters or locations.
@@ -106,7 +115,8 @@ Everything is still global, with no modules or state object. Splitting it up is 
 - No pause, no landscape-specific layout.
 - **Sound** is pure WebAudio (section 12, object `A`): a looping 16-bar whistle + acoustic-strum song (Karplus-Strong guitar, G major, 104 bpm), footsteps per surface (grass/dirt/cobble), blaster "pew", hit/KO chimes, and a cartoon "oof" when the player is hurt (throttled to one per 0.15 s). It starts on the first tap or keypress (browser autoplay rules) and pauses when the tab is hidden. The mute button / M key choice is saved in `localStorage`. On iPhone, the hardware silent switch mutes WebAudio. Not yet heard on a real phone.
 - Enemies can stack on one another and cluster; there is no separation steering.
-- The start overlay is the only place the controls are explained.
+- First-run onboarding teaches the controls; afterwards, the pause menu lists desktop keys, and touch controls aren't re-explained.
+- **Gameplay-timing change (onboarding only):** on a player's first run, wave-1 Grinnies wait while the player learns to look and walk (≤15 s). Damage, HP and speed numbers are unchanged.
 
 ## Roadmap (suggested order)
 
@@ -115,7 +125,7 @@ Everything is still global, with no modules or state object. Splitting it up is 
 3. **Feel.** ~~Hit sparks, enemy hit-stagger, squash on death (pop into stars), better recoil~~ (done in the visual overhaul). Remaining: damage numbers, screen shake.
 4. **Audio.** ~~Music, footsteps, shoot, hit, KO~~ (done). Remaining: wave-start sting, a game-over jingle.
 5. **Content.** Second enemy type (fast runner), a boss every 5th wave, health pickups (gold stars), a second weapon.
-6. **Meta.** Best-wave score in `localStorage`, pause menu, settings (look sensitivity, left-handed layout).
+6. **Meta.** ~~Best score, pause menu, settings~~ (done). Remaining: a real objective for the star ("defend the Wishing Star"), upgrades between waves.
 7. **Style pass.** ~~World/character/weapon art direction~~ (done). Remaining: alternate arena themes (e.g. mud/grass, dusk lighting), more Grinnie variants, a second enemy species designed in the same family.
 8. **Ship.** PWA manifest and offline cache, deploy to Netlify or GitHub Pages.
 
