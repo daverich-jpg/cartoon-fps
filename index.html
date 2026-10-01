@@ -40,6 +40,10 @@ canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block}
 #banner{top:26%;left:0;right:0;text-align:center;font-size:44px}
 #banner.on{animation:pop .5s cubic-bezier(.16,1,.3,1)}
 @keyframes pop{from{transform:scale(.4) translateY(10px);opacity:0}}
+.dir,.pip{position:fixed;left:50%;top:50%;width:0;height:0;pointer-events:none;opacity:0}
+.dir{transition:opacity .6s ease-out}.dir.on{opacity:1;transition-duration:.05s}
+.dir i{position:absolute;left:-55px;top:calc(-1 * var(--r,140px));width:110px;height:16px;border-radius:99px;background:var(--tangerine);border:3px solid var(--ink);box-shadow:0 3px 0 var(--ink)}
+.pip{left:0;top:0}.pip i{position:absolute;left:-12px;top:-14px;border-left:12px solid transparent;border-right:12px solid transparent;border-bottom:20px solid var(--tangerine);filter:drop-shadow(2px 0 0 var(--ink)) drop-shadow(-2px 0 0 var(--ink)) drop-shadow(0 2px 0 var(--ink)) drop-shadow(0 -2px 0 var(--ink))}
 #hurt{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 50%,#f0604c99 100%);opacity:0;transition:opacity .35s ease-out}
 #hurt.on{opacity:1;transition-duration:.05s}
 /* Overlays let the living world show through instead of hiding it behind a flat gradient */
@@ -58,7 +62,7 @@ button:focus-visible{outline:3px solid #fff;outline-offset:3px}
 @media (prefers-reduced-motion:reduce){.ov.on>*,#banner.on{animation:none}}
 </style></head><body>
 <canvas id="c"></canvas><div id="look"></div>
-<div id="hurt"></div>
+<div id="hurt"></div><div id="threat"></div>
 <div class="hud" id="top"><div id="life"><svg viewBox="0 0 34 34" aria-hidden="true"><path d="M17 30C8 23 3 18 3 11.5 3 7 6.5 4 10.5 4c3 0 5 1.6 6.5 4 1.5-2.4 3.5-4 6.5-4C27.5 4 31 7 31 11.5 31 18 26 23 17 30z" fill="#f0604c" stroke="#2a1830" stroke-width="3.5" stroke-linejoin="round"/><path d="M9 9.5c1-1.6 2.6-2 4-1.6" stroke="#fff" stroke-width="2.6" stroke-linecap="round" fill="none"/></svg><div id="bar"><div id="hp"></div></div></div><div id="right"><div id="info">Wave 1 · 0 KO</div><button id="snd" aria-label="Mute sound" aria-pressed="false"><svg class="on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h3l5-4v14l-5-4H4z" fill="#2a1830" stroke="#2a1830" stroke-width="2" stroke-linejoin="round"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" fill="none" stroke="#2a1830" stroke-width="2.4" stroke-linecap="round"/></svg><svg class="x" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h3l5-4v14l-5-4H4z" fill="#2a1830" stroke="#2a1830" stroke-width="2" stroke-linejoin="round"/><path d="M16 9.5l5 5M21 9.5l-5 5" stroke="#f0604c" stroke-width="2.6" stroke-linecap="round"/></svg></button></div></div>
 <div class="hud" id="hint">Click to aim · Esc to release</div><div class="hud" id="cross"></div><div class="hud" id="banner"></div>
 <div id="stick"><div id="knob"></div></div>
@@ -98,6 +102,7 @@ function rs(){R.setPixelRatio(PR);R.setSize(innerWidth,innerHeight,false);
   C.aspect=GC.aspect=innerWidth/innerHeight;C.updateProjectionMatrix();GC.updateProjectionMatrix();
   const hw=.62*Math.tan(29*Math.PI/180)*GC.aspect,port=GC.aspect<1;gunBase={x:Math.min(.27,hw*.55+.04),y:port?-.27:-.26};
   // portrait phones have a narrow horizontal view: shrink the rig so it never covers the FIRE button
+  document.documentElement.style.setProperty('--r',Math.round(Math.min(innerWidth,innerHeight)*.3)+'px');
   if(typeof rig!=='undefined')rig.scale.setScalar(.85*Math.min(1,.42+GC.aspect*.5))}
 rs();addEventListener('resize',rs);
 
@@ -783,8 +788,28 @@ rc.setFromCamera({x:0,y:0},C);const all=[...obsM];en.forEach(e=>all.push(...e.me
 const h=rc.intersectObjects(all)[0];if(h&&!h.object.userData.e)fx('puff',h.point,0,.6,0,.35,.28,0xfff4e0);if(!h||!h.object.userData.e)return;
 const e=h.object.userData.e;e.hp-=h.object.userData.head?2:1;$('cross').classList.add('hit');setTimeout(()=>$('cross').classList.remove('hit'),90);
 e.meshes.forEach(m=>m.material.emissive.setHex(0xff4444));setTimeout(()=>e.meshes.forEach(m=>m.material.emissive.setHex(0)),70);
-e.hurt=1;A.hit(h.object.userData.head);burst(h.point,h.object.userData.head?4:2,0xffffff,2.5,.07);fx('puff',h.point,0,.4,0,.25,.22,0xffffff);
-if(e.hp<=0){S.remove(e.g);en=en.filter(x=>x!==e);kills++;info();S.add(e.g);dying.push({e,t:0});A.ko()}}
+e.hurt=1;A.hit(h.object.userData.head);if(h.object.userData.head&&e.hp>0)word('BONK!','#fff1c9',h.point,1.3);burst(h.point,h.object.userData.head?4:2,0xffffff,2.5,.07);fx('puff',h.point,0,.4,0,.25,.22,0xffffff);
+if(e.hp<=0){S.remove(e.g);en=en.filter(x=>x!==e);kills++;info();S.add(e.g);dying.push({e,t:0});A.ko();hitStop=.05;const wp=e.g.position.clone();wp.y=2.6;word('POP!','#ffc53d',wp,1.9)}}
+// threat awareness: damage-direction arcs + edge chevrons for close Grinnies you can't see
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;let shake=0,hitStop=0;
+const TH=$('threat'),mk=c=>{const d=document.createElement('div');d.className=c;d.innerHTML='<i></i>';TH.appendChild(d);return d};
+const dirs=[0,1,2,3].map(()=>mk('dir')),pips=[0,1,2,3,4,5].map(()=>mk('pip'));let dirI=0;
+const relAng=(x,z)=>{let a=Math.atan2(-(x-pl.x),-(z-pl.z))-yaw;return Math.atan2(Math.sin(a),Math.cos(a))};
+function hurtFrom(e){const d=dirs[dirI++%4];d.style.transform='rotate('+(-relAng(e.g.position.x,e.g.position.z))+'rad)';d.classList.add('on');clearTimeout(d._t);d._t=setTimeout(()=>d.classList.remove('on'),380);
+  e.lunge=1;if(!RM)shake=Math.min(.7,shake+.4)}
+function updatePips(){const hf=Math.atan(Math.tan(C.fov*Math.PI/360)*C.aspect)*.92,L=[];
+  if(play)for(const e of en){const dist=Math.hypot(e.g.position.x-pl.x,e.g.position.z-pl.z);if(dist>16)continue;const a=relAng(e.g.position.x,e.g.position.z);if(Math.abs(a)>hf)L.push([dist,a])}
+  L.sort((p,q)=>p[0]-q[0]);const cx=innerWidth/2,cy=innerHeight/2,rx=innerWidth*.44,ry=innerHeight*.4;
+  pips.forEach((p,i)=>{const it=L[i];if(!it){if(p._on){p.style.opacity=0;p._on=0}return}const th=-it[1];
+    p.style.transform='translate('+(cx+Math.sin(th)*rx)+'px,'+(cy-Math.cos(th)*ry)+'px) rotate('+th+'rad)';p.style.opacity=.35+.65*(1-it[0]/16);p._on=1})}
+// comic impact words (BONK! on head hits, POP! on KOs), drawn lazily once the font is ready
+const WORDS={},wordPool=[];
+function wordTex(w,col){if(WORDS[w])return WORDS[w];const t=canvasTex(256,128,g=>{g.font='700 74px Fredoka, sans-serif';g.textAlign='center';g.textBaseline='middle';g.lineJoin='round';
+  g.translate(128,64);g.rotate(-.12);g.lineWidth=16;g.strokeStyle='#2a1830';g.strokeText(w,0,4);g.fillStyle=col;g.fillText(w,0,0)});return WORDS[w]=t}
+function word(w,col,pos,size){let p=wordPool.find(x=>!x.on);if(!p){if(wordPool.length>5)return;const sp=new THREE.Sprite(new THREE.SpriteMaterial({transparent:true,depthTest:false,depthWrite:false}));sp.renderOrder=10;S.add(sp);p={sp};wordPool.push(p)}
+  p.on=true;p.t=0;p.size=size;p.sp.material.map=wordTex(w,col);p.sp.material.needsUpdate=true;p.sp.position.copy(pos);p.sp.position.y+=.5;p.sp.visible=true}
+function stepWords(dt){for(const p of wordPool){if(!p.on)continue;p.t+=dt;const k=p.t/.6;if(k>=1){p.on=false;p.sp.visible=false;continue}
+  const pop=k<.15?k/.15*1.15:1.15-.15*Math.min(1,(k-.15)/.15);p.sp.scale.set(p.size*pop,p.size*pop*.5,1);p.sp.position.y+=dt*.8;p.sp.material.opacity=k>.7?1-(k-.7)/.3:1}}
 // controls
 let jx=0,jz=0,sid=null,lid=null,lx=0,ly=0;const st=$('stick'),kn=$('knob');
 function sv(e){const r=st.getBoundingClientRect();let dx=e.clientX-r.left-64,dy=e.clientY-r.top-64;const d=Math.hypot(dx,dy),m=60;if(d>m){dx*=m/d;dy*=m/d}kn.style.left=34+dx+'px';kn.style.top=34+dy+'px';jx=dx/m;jz=dy/m}
@@ -831,7 +856,7 @@ $('start').onclick=()=>{$('intro').classList.remove('on');go()};$('again').oncli
 // =====================================================================
 let last=performance.now(),lastStep=0,bobT=0,swayX=0,swayY=0,lastYaw=0,lastPitch=0,mv=0;
 const m4=new THREE.Matrix4();
-function loop(t){const dt=Math.min((t-last)/1000,.05);last=t;const ts=t/1000;U.t.value=ts;
+function loop(t){let dt=Math.min((t-last)/1000,.05);last=t;if(hitStop>0){hitStop-=dt;dt=0}const ts=t/1000;U.t.value=ts;
 cr.rotation.y+=dt*1.2;cr.position.y=2.6+Math.sin(t/500)*.2;
 for(const a of anim)a(ts,dt);
 if(!play&&$('intro').classList.contains('on')){yaw=Math.sin(ts*.13)*.55;pitch=-.04+Math.sin(ts*.21)*.04}
@@ -840,12 +865,13 @@ if(play){f=-jz+(K.KeyW?1:0)-(K.KeyS?1:0);r=jx+(K.KeyD?1:0)-(K.KeyA?1:0);
 pl.x+=(-Math.sin(yaw)*f+Math.cos(yaw)*r)*6*dt;pl.z+=(-Math.cos(yaw)*f-Math.sin(yaw)*r)*6*dt;push(pl,.5);
 fireT-=dt;if(holdF&&fireT<=0){fireT=.2;shoot()}
 for(const e of en){e.t+=dt*8;const dx=pl.x-e.g.position.x,dz=pl.z-e.g.position.z,d=Math.hypot(dx,dz);
-if(d>1.3){e.g.position.x+=dx/d*e.sp*dt;e.g.position.z+=dz/d*e.sp*dt;push(e.g.position,.5)}else{e.hit=(e.hit||0)-dt;if(e.hit<=0){e.hit=.8;hp-=10;setHp()}}
+if(d>1.3){e.g.position.x+=dx/d*e.sp*dt;e.g.position.z+=dz/d*e.sp*dt;push(e.g.position,.5)}else{e.hit=(e.hit||0)-dt;if(e.hit<=0){e.hit=.8;hp-=10;setHp();hurtFrom(e)}}
 e.g.rotation.y=Math.atan2(dx,dz);e.l1.rotation.x=Math.sin(e.t)*.7;e.l2.rotation.x=-Math.sin(e.t)*.7;
 e.g.position.y=Math.abs(Math.sin(e.t))*.12;
 // --- visual layer: pop-in, squash & stretch, flailing arms, blinking, hit recoil
 e.born=Math.min(1,e.born+dt*2.6);const b=e.born,ob=b<1?1+2.7*Math.pow(b-1,3)+1.7*Math.pow(b-1,2):1;e.g.scale.setScalar(Math.max(.01,ob));
 e.hurt=Math.max(0,e.hurt-dt*5);const sq=Math.sin(e.t*2)*.05;
+e.lunge=Math.max(0,(e.lunge||0)-dt*4);e.head.position.z=Math.sin(e.lunge*Math.PI)*.4;
 e.head.scale.set(1+sq+e.hurt*.18,1-sq-e.hurt*.2,1+sq*.5);e.head.rotation.x=-e.hurt*.35+(d>1.3?.08:0);
 const near=d<4?1:0;e.a1.rotation.x=-Math.sin(e.t)*.6-near*1.4;e.a2.rotation.x=Math.sin(e.t)*.6-near*1.4;e.a1.rotation.z=-.7+Math.sin(e.t*1.3)*.15;e.a2.rotation.z=.7-Math.sin(e.t*1.3)*.15;
 e.blink-=dt;e.eyes.scale.y=e.blink<.1?.15:(e.hurt>.3?.35:1);if(e.blink<0)e.blink=2+Math.random()*3;
@@ -870,7 +896,8 @@ gun.position.set(gunBase.x+Math.sin(bobT)*.014*mv+Math.max(-.05,Math.min(.05,swa
 gun.rotation.set(kick*2.2+Math.max(-.05,Math.min(.05,swayY))*.5,Math.max(-.08,Math.min(.08,swayX))*.8,Math.sin(bobT*.5)*.02*mv);
 goo.rotation.y+=dt*3;goo.scale.set(1+Math.sin(ts*4)*.12,1-Math.sin(ts*4)*.1+kick*2,1);
 if(play)aimAssist(dt);else if(onTarget){onTarget=false;$('cross').classList.remove('on')}
-C.position.set(pl.x,1.6,pl.z);C.rotation.set(pitch,yaw,0);sky.position.copy(C.position);
+stepWords(dt);updatePips();shake=Math.max(0,shake-dt*2.6);
+C.position.set(pl.x+(Math.random()-.5)*shake*.14,1.6+(Math.random()-.5)*shake*.1,pl.z+(Math.random()-.5)*shake*.14);C.rotation.set(pitch,yaw,(Math.random()-.5)*shake*.03);sky.position.copy(C.position);
 R.clear();R.render(S,C);R.clearDepth();R.render(GS,GC);
 // ignore the first seconds (shader compile, asset build) and single hitches: drop only after two slow 2s windows in a row
 if(ts>5){frames++;frameAcc+=dt;if(frameAcc>2){slowWin=frameAcc/frames>1/45?slowWin+1:0;if(slowWin>=2&&PR>1){PR=Math.max(1,PR-.25);rs();slowWin=0}frames=0;frameAcc=0}}
