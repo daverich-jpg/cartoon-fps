@@ -28,6 +28,7 @@ canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block}
 #snd svg{width:22px;height:22px;grid-area:1/1}#snd .x,#snd.off .on{display:none}#snd.off .x{display:block}
 #snd:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
 #cross{top:50%;left:50%;width:24px;height:24px;margin:-12px;border:4px solid #fff;border-radius:50%;box-shadow:0 0 0 3px var(--ink),inset 0 0 0 3px var(--ink);text-shadow:none;transition-property:transform,border-color;transition-duration:.09s;transition-timing-function:cubic-bezier(.2,0,0,1)}
+#cross.on{border-color:var(--tangerine)}
 #cross.hit{border-color:var(--tangerine);transform:scale(1.6)}
 #stick{position:fixed;left:calc(22px + env(safe-area-inset-left,0px));bottom:calc(30px + env(safe-area-inset-bottom,0px));width:128px;height:128px;border-radius:50%;background:#fff1c966;border:5px solid var(--ink)}
 #knob{position:absolute;left:34px;top:34px;width:56px;height:56px;border-radius:50%;background:radial-gradient(circle at 50% 58%,var(--ink) 0 9px,transparent 10px),var(--gold);border:4px solid var(--ink);box-shadow:0 4px 0 var(--ink)}
@@ -787,21 +788,39 @@ if(e.hp<=0){S.remove(e.g);en=en.filter(x=>x!==e);kills++;info();S.add(e.g);dying
 // controls
 let jx=0,jz=0,sid=null,lid=null,lx=0,ly=0;const st=$('stick'),kn=$('knob');
 function sv(e){const r=st.getBoundingClientRect();let dx=e.clientX-r.left-64,dy=e.clientY-r.top-64;const d=Math.hypot(dx,dy),m=60;if(d>m){dx*=m/d;dy*=m/d}kn.style.left=34+dx+'px';kn.style.top=34+dy+'px';jx=dx/m;jz=dy/m}
-st.addEventListener('pointerdown',e=>{sid=e.pointerId;st.setPointerCapture(sid);sv(e)});
+st.addEventListener('pointerdown',e=>{sid=e.pointerId;cap(st,sid);sv(e)});
 st.addEventListener('pointermove',e=>{if(e.pointerId===sid)sv(e)});
 const sr=e=>{if(e.pointerId===sid){sid=null;jx=jz=0;kn.style.left=kn.style.top='34px'}};st.addEventListener('pointerup',sr);st.addEventListener('pointercancel',sr);
 const lk=$('look');
-lk.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'){if(!play)return;if(document.pointerLockElement!==lk)lockMouse();else if(e.button===0)holdF=true;return}
-lid=e.pointerId;lk.setPointerCapture(lid);lx=e.clientX;ly=e.clientY});
-lk.addEventListener('pointermove',e=>{if(e.pointerId!==lid)return;yaw-=(e.clientX-lx)*.006;pitch=Math.max(-1.2,Math.min(1.2,pitch-(e.clientY-ly)*.006));lx=e.clientX;ly=e.clientY});
+// touch look: drag the right side, or drag while holding FIRE (aim while shooting). aimSlow eases sensitivity over targets.
+const TSENS=.006;let touchAim=!matchMedia('(pointer:fine)').matches,aimSlow=1;
+function look(dx,dy){const k=TSENS*aimSlow;yaw-=dx*k;pitch=Math.max(-1.2,Math.min(1.2,pitch-dy*k))}
+const cap=(el,id)=>{try{el.setPointerCapture(id)}catch(e){}};
+lk.addEventListener('pointerdown',e=>{touchAim=e.pointerType!=='mouse';if(e.pointerType==='mouse'){if(!play)return;if(document.pointerLockElement!==lk)lockMouse();else if(e.button===0)holdF=true;return}
+lid=e.pointerId;cap(lk,lid);lx=e.clientX;ly=e.clientY});
+lk.addEventListener('pointermove',e=>{if(e.pointerId!==lid)return;look(e.clientX-lx,e.clientY-ly);lx=e.clientX;ly=e.clientY});
 const le=e=>{if(e.pointerType==='mouse'&&e.button===0&&document.pointerLockElement===lk)holdF=false;if(e.pointerId===lid)lid=null};lk.addEventListener('pointerup',le);lk.addEventListener('pointercancel',le);
 // desktop mouse look: click to capture the mouse, move to aim, hold left button to fire, Esc to release
 const MOUSE=matchMedia('(pointer:fine)').matches,MSENS=.0022;
 function lockMouse(){if(!MOUSE||!lk.requestPointerLock)return;try{const p=lk.requestPointerLock();if(p&&p.catch)p.catch(()=>{})}catch(e){}}
-document.addEventListener('mousemove',e=>{if(document.pointerLockElement!==lk||!play)return;yaw-=e.movementX*MSENS;pitch=Math.max(-1.2,Math.min(1.2,pitch-e.movementY*MSENS))});
+document.addEventListener('mousemove',e=>{if(document.pointerLockElement!==lk||!play)return;touchAim=false;yaw-=e.movementX*MSENS;pitch=Math.max(-1.2,Math.min(1.2,pitch-e.movementY*MSENS))});
 document.addEventListener('pointerlockchange',()=>{const on=document.pointerLockElement===lk;if(!on)holdF=false;$('hint').classList.toggle('on',MOUSE&&play&&!on)});
-const fb=$('fire');fb.addEventListener('pointerdown',e=>{holdF=true;fb.setPointerCapture(e.pointerId)});
-const fu=()=>holdF=false;fb.addEventListener('pointerup',fu);fb.addEventListener('pointercancel',fu);
+// FIRE is also a look pad: press to shoot, slide the same thumb to track
+const fb=$('fire');let fid=null,fpx=0,fpy=0;
+fb.addEventListener('pointerdown',e=>{holdF=true;fid=e.pointerId;fpx=e.clientX;fpy=e.clientY;cap(fb,e.pointerId);if(e.pointerType!=='mouse')touchAim=true});
+fb.addEventListener('pointermove',e=>{if(e.pointerId!==fid)return;look(e.clientX-fpx,e.clientY-fpy);fpx=e.clientX;fpy=e.clientY});
+const fu=e=>{if(e.pointerId===fid)fid=null;holdF=false};fb.addEventListener('pointerup',fu);fb.addEventListener('pointercancel',fu);
+// aim assist (touch only): nearest visible Grinnie inside a small cone around the crosshair.
+// slowdown while over/near it; gentle, rate-capped pull only while firing; never through cover, never snaps.
+const AA={cone:.07,slow:.5,pull:3,maxRate:1.0,y:1.95};let onTarget=false;const _ray=new THREE.Raycaster(),_o=new THREE.Vector3(),_d=new THREE.Vector3();
+function aimAssist(dt){let best=null,bR=1,bey=0,bep=0,bra=0,berr=0;
+  for(const e of en){if(e.born<.6)continue;const dx=e.g.position.x-pl.x,dz=e.g.position.z-pl.z,dist=Math.hypot(dx,dz);if(dist>40||dist<.6)continue;
+    let ey=Math.atan2(-dx,-dz)-yaw;ey=Math.atan2(Math.sin(ey),Math.cos(ey));const ep=Math.atan2(e.g.position.y+AA.y-1.6,dist)-pitch,err=Math.hypot(ey*Math.cos(pitch),ep),ra=Math.atan(.6/dist),r=err/(ra+AA.cone);
+    if(r<bR){bR=r;best=e;bey=ey;bep=ep;bra=ra;berr=err}}
+  if(best){_o.set(pl.x,1.6,pl.z);_d.set(best.g.position.x-pl.x,best.g.position.y+AA.y-1.6,best.g.position.z-pl.z);const L=_d.length();_ray.set(_o,_d.normalize());_ray.far=L-.7;if(_ray.intersectObjects(obsM).length)best=null}
+  const on=!!best&&berr<bra;if(on!==onTarget){onTarget=on;$('cross').classList.toggle('on',on)}
+  const slowT=best&&touchAim?1-AA.slow*(1-.5*bR):1;aimSlow+=(slowT-aimSlow)*Math.min(1,dt*14);
+  if(best&&touchAim&&holdF){const k=Math.min(1,AA.pull*dt),c=AA.maxRate*dt;yaw+=Math.max(-c,Math.min(c,bey*k));pitch=Math.max(-1.2,Math.min(1.2,pitch+Math.max(-c,Math.min(c,bep*k))))}}
 const K={};addEventListener('keydown',e=>{K[e.code]=1;if(e.code==='Space')holdF=true});addEventListener('keyup',e=>{K[e.code]=0;if(e.code==='Space')holdF=false});
 function reset(){en.forEach(e=>S.remove(e.g));en=[];hp=100;prevHp=100;wave=0;kills=0;pl.x=0;pl.z=20;yaw=0;pitch=0;setHp();play=true;pause=0;spawnWave();$('over').classList.remove('on')}
 const go=()=>{reset();$('hint').classList.toggle('on',MOUSE&&document.pointerLockElement!==lk);lockMouse()};
@@ -850,6 +869,7 @@ kick=Math.max(0,kick-dt*.6);
 gun.position.set(gunBase.x+Math.sin(bobT)*.014*mv+Math.max(-.05,Math.min(.05,swayX)),gunBase.y-Math.abs(Math.cos(bobT))*.012*mv+Math.sin(ts*1.6)*.003-Math.max(-.04,Math.min(.04,swayY)),-.6+kick);
 gun.rotation.set(kick*2.2+Math.max(-.05,Math.min(.05,swayY))*.5,Math.max(-.08,Math.min(.08,swayX))*.8,Math.sin(bobT*.5)*.02*mv);
 goo.rotation.y+=dt*3;goo.scale.set(1+Math.sin(ts*4)*.12,1-Math.sin(ts*4)*.1+kick*2,1);
+if(play)aimAssist(dt);else if(onTarget){onTarget=false;$('cross').classList.remove('on')}
 C.position.set(pl.x,1.6,pl.z);C.rotation.set(pitch,yaw,0);sky.position.copy(C.position);
 R.clear();R.render(S,C);R.clearDepth();R.render(GS,GC);
 // ignore the first seconds (shader compile, asset build) and single hitches: drop only after two slow 2s windows in a row

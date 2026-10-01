@@ -29,7 +29,13 @@ Needs internet for two CDN resources: three.js r128 and the Fredoka font (see Co
 | Arena | Flat, clamped to ±38 units; 12 cover objects (same positions/radii as the old pillars) + the Wishing Star as cover |
 | Score | KO count and wave number only; no persistence |
 
-**Controls:** left thumbstick moves, drag anywhere on the right to aim, FIRE button (hold = auto-fire). Desktop: WASD to move; click to capture the mouse, move to aim, hold left-click or Space to fire, Esc to release (pointer lock, sensitivity `MSENS`).
+**Controls:** left thumbstick moves, drag anywhere on the right to aim, FIRE button (hold = auto-fire; **slide your thumb while holding FIRE to aim while shooting**). Desktop: WASD to move; click to capture the mouse, move to aim, hold left-click or Space to fire, Esc to release (pointer lock, sensitivity `MSENS`).
+
+**Aim assist (touch only, `AA` in the script):** the nearest visible Grinnie inside a small cone around the crosshair (`cone` 0.07 rad plus its angular size, max 40 m, behind no cover, not mid-spawn) triggers:
+- **slowdown:** look sensitivity eases to about 50–75% while over or near it;
+- **magnetism:** only while firing, a rate-capped pull (`pull` 3/s, `maxRate` 1 rad/s) toward the head centre. It never snaps.
+
+Mouse aiming gets no assist. Every input gets the **on-target crosshair** (the ring turns tangerine when a shot would hit). Tested by stepping the loop: a 0.10 rad error closes to 0.005 within 1 s of firing; no pull for mouse, when not firing, beyond the cone, or behind cover. Feel on a real phone is **not yet tested**: tune `AA.slow`/`AA.pull` after playtests.
 
 ## Art direction
 
