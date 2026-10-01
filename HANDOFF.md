@@ -97,7 +97,8 @@ Everything is still global, with no modules or state object. Splitting it up is 
 - **Hit-shape changes (visual, not numbers):** cover silhouettes now match the new art instead of boxes (e.g. you can shoot past a mushroom stem under its cap). The star plinth and lanterns now block shots below the floating star (they sit inside the star's existing collision circle). Enemies grow in over ~0.4 s when they spawn. KO'd enemies play a 0.22 s squash after they've already been removed from play.
 - In portrait the blaster sits partly behind the FIRE button (it's scaled down for portrait, but still overlaps).
 - Ground texture is 2048² over 170 units, so it's soft up close (the plaza has its own hi-res decal).
-- No pause, no sound, no landscape-specific layout.
+- No pause, no landscape-specific layout.
+- **Sound** is pure WebAudio (section 12, object `A`): a looping 16-bar whistle + acoustic-strum song (Karplus-Strong guitar, G major, 104 bpm), footsteps per surface (grass/dirt/cobble), blaster "pew", and hit/KO chimes. It starts on the first tap or keypress (browser autoplay rules) and pauses when the tab is hidden. The mute button / M key choice is saved in `localStorage`. On iPhone, the hardware silent switch mutes WebAudio. Not yet heard on a real phone.
 - Enemies can stack on one another and cluster; there is no separation steering.
 - The start overlay is the only place the controls are explained.
 
@@ -106,7 +107,7 @@ Everything is still global, with no modules or state object. Splitting it up is 
 1. **Verify and fix.** Run on a phone and desktop, fix whatever breaks, and profile.
 2. **Project structure.** Vite + npm `three`; split into `src/{scene,materials,enemies,player,input,ui,game}.ts`; one `GameState` object instead of globals; add lint and typecheck.
 3. **Feel.** ~~Hit sparks, enemy hit-stagger, squash on death (pop into stars), better recoil~~ (done in the visual overhaul). Remaining: damage numbers, screen shake.
-4. **Audio.** WebAudio synth blips for shoot, hit, KO, hurt (no asset files needed).
+4. **Audio.** ~~Music, footsteps, shoot, hit, KO~~ (done). Remaining: hurt sound, wave-start sting, a game-over jingle.
 5. **Content.** Second enemy type (fast runner), a boss every 5th wave, health pickups (gold stars), a second weapon.
 6. **Meta.** Best-wave score in `localStorage`, pause menu, settings (look sensitivity, left-handed layout).
 7. **Style pass.** ~~World/character/weapon art direction~~ (done). Remaining: alternate arena themes (e.g. mud/grass, dusk lighting), more Grinnie variants, a second enemy species designed in the same family.

@@ -23,6 +23,10 @@ canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block}
 #bar{flex:1;height:24px;background:var(--cream);border-radius:99px;overflow:hidden;border:4px solid var(--ink);box-shadow:0 4px 0 var(--ink)}
 #hp{height:100%;width:100%;background:var(--mint);border-radius:99px;transition-property:width,background-color;transition-duration:.15s;box-shadow:inset 0 -5px 0 #0002,inset 0 4px 0 #fff6}
 #info{background:var(--cream);color:var(--ink);text-shadow:none;border:4px solid var(--ink);border-radius:99px;padding:3px 14px;box-shadow:0 4px 0 var(--ink);font-variant-numeric:tabular-nums}
+#right{display:flex;align-items:center;gap:8px}
+#snd{pointer-events:auto;width:40px;height:40px;padding:0;border-radius:50%;background:var(--cream);border:4px solid var(--ink);box-shadow:0 4px 0 var(--ink);display:grid;place-items:center;cursor:pointer}
+#snd svg{width:22px;height:22px;grid-area:1/1}#snd .x,#snd.off .on{display:none}#snd.off .x{display:block}
+#snd:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
 #cross{top:50%;left:50%;width:24px;height:24px;margin:-12px;border:4px solid #fff;border-radius:50%;box-shadow:0 0 0 3px var(--ink),inset 0 0 0 3px var(--ink);text-shadow:none;transition-property:transform,border-color;transition-duration:.09s;transition-timing-function:cubic-bezier(.2,0,0,1)}
 #cross.hit{border-color:var(--tangerine);transform:scale(1.6)}
 #stick{position:fixed;left:calc(22px + env(safe-area-inset-left,0px));bottom:calc(30px + env(safe-area-inset-bottom,0px));width:128px;height:128px;border-radius:50%;background:#fff1c966;border:5px solid var(--ink)}
@@ -54,7 +58,7 @@ button:focus-visible{outline:3px solid #fff;outline-offset:3px}
 </style></head><body>
 <canvas id="c"></canvas><div id="look"></div>
 <div id="hurt"></div>
-<div class="hud" id="top"><div id="life"><svg viewBox="0 0 34 34" aria-hidden="true"><path d="M17 30C8 23 3 18 3 11.5 3 7 6.5 4 10.5 4c3 0 5 1.6 6.5 4 1.5-2.4 3.5-4 6.5-4C27.5 4 31 7 31 11.5 31 18 26 23 17 30z" fill="#f0604c" stroke="#2a1830" stroke-width="3.5" stroke-linejoin="round"/><path d="M9 9.5c1-1.6 2.6-2 4-1.6" stroke="#fff" stroke-width="2.6" stroke-linecap="round" fill="none"/></svg><div id="bar"><div id="hp"></div></div></div><div id="info">Wave 1 · 0 KO</div></div>
+<div class="hud" id="top"><div id="life"><svg viewBox="0 0 34 34" aria-hidden="true"><path d="M17 30C8 23 3 18 3 11.5 3 7 6.5 4 10.5 4c3 0 5 1.6 6.5 4 1.5-2.4 3.5-4 6.5-4C27.5 4 31 7 31 11.5 31 18 26 23 17 30z" fill="#f0604c" stroke="#2a1830" stroke-width="3.5" stroke-linejoin="round"/><path d="M9 9.5c1-1.6 2.6-2 4-1.6" stroke="#fff" stroke-width="2.6" stroke-linecap="round" fill="none"/></svg><div id="bar"><div id="hp"></div></div></div><div id="right"><div id="info">Wave 1 · 0 KO</div><button id="snd" aria-label="Mute sound" aria-pressed="false"><svg class="on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h3l5-4v14l-5-4H4z" fill="#2a1830" stroke="#2a1830" stroke-width="2" stroke-linejoin="round"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" fill="none" stroke="#2a1830" stroke-width="2.4" stroke-linecap="round"/></svg><svg class="x" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h3l5-4v14l-5-4H4z" fill="#2a1830" stroke="#2a1830" stroke-width="2" stroke-linejoin="round"/><path d="M16 9.5l5 5M21 9.5l-5 5" stroke="#f0604c" stroke-width="2.6" stroke-linecap="round"/></svg></button></div></div>
 <div class="hud" id="hint">Click to aim · Esc to release</div><div class="hud" id="cross"></div><div class="hud" id="banner"></div>
 <div id="stick"><div id="knob"></div></div>
 <button id="fire">FIRE</button>
@@ -88,7 +92,7 @@ const C=new THREE.PerspectiveCamera(75,1,.1,460);C.rotation.order='YXZ';S.add(C)
 const GS=new THREE.Scene(),GC=new THREE.PerspectiveCamera(58,1,.01,10);
 let gunBase={x:.3,y:-.28};
 // pixel ratio: capped at 2, and stepped down automatically if a phone can't hold ~45fps
-let PR=Math.min(devicePixelRatio,2),frames=0,frameAcc=0;
+let PR=Math.min(devicePixelRatio,2),frames=0,frameAcc=0,slowWin=0;
 function rs(){R.setPixelRatio(PR);R.setSize(innerWidth,innerHeight,false);
   C.aspect=GC.aspect=innerWidth/innerHeight;C.updateProjectionMatrix();GC.updateProjectionMatrix();
   const hw=.62*Math.tan(29*Math.PI/180)*GC.aspect,port=GC.aspect<1;gunBase={x:Math.min(.27,hw*.55+.04),y:port?-.27:-.26};
@@ -678,6 +682,81 @@ function spawnWave(){wave++;const n=2+wave*2;for(let i=0;i<n;i++){const e=mkEnem
 function info(){$('info').textContent='Wave '+wave+' · '+kills+' KO'}
 
 // =====================================================================
+// 12. Audio: pure WebAudio synthesis (no files). Whistle + acoustic strum loop, footsteps, blaster.
+// =====================================================================
+const A=(()=>{let ctx=null,master,music,sfx,noiseBuf,muted=false,started=false,timer=null;
+  try{muted=localStorage.getItem('bb-muted')==='1'}catch(e){}
+  const mtof=m=>440*Math.pow(2,(m-69)/12);
+  function init(){if(ctx)return;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;ctx=new AC();
+    master=ctx.createGain();master.gain.value=1;const comp=ctx.createDynamicsCompressor();comp.threshold.value=-16;comp.ratio.value=3;master.connect(comp);comp.connect(ctx.destination);
+    music=ctx.createGain();music.gain.value=.5;sfx=ctx.createGain();sfx.gain.value=.75;music.connect(master);sfx.connect(master);
+    // small warm room
+    const len=ctx.sampleRate*1.5|0,ir=ctx.createBuffer(2,len,ctx.sampleRate);for(let c=0;c<2;c++){const d=ir.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,3.2)}
+    const rev=ctx.createConvolver();rev.buffer=ir;const wet=ctx.createGain();wet.gain.value=.22;rev.connect(wet);wet.connect(master);music.connect(rev);
+    const sw=ctx.createGain();sw.gain.value=.25;sfx.connect(sw);sw.connect(rev);
+    noiseBuf=ctx.createBuffer(1,ctx.sampleRate,ctx.sampleRate);const nd=noiseBuf.getChannelData(0);for(let i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;
+    // guitar body: gentle low bump, rolled-off top
+    gBus=ctx.createBiquadFilter();gBus.type='lowpass';gBus.frequency.value=3400;const body=ctx.createBiquadFilter();body.type='peaking';body.frequency.value=190;body.gain.value=4;gBus.connect(body);body.connect(music);
+    whistleInit()}
+  let gBus;
+  // ---- acoustic guitar: Karplus-Strong plucks, cached per note
+  const plucks={};
+  function pluckBuf(m){if(plucks[m])return plucks[m];const sr=ctx.sampleRate,N=Math.round(sr/mtof(m)),len=sr*2.4|0,b=ctx.createBuffer(1,len,sr),d=b.getChannelData(0);
+    let pr=0;for(let i=0;i<N;i++){pr=pr*.55+(Math.random()*2-1)*.45;d[i]=pr}const k=m<50?.9978:.9962;d[N]=k*d[0];for(let i=N+1;i<len;i++)d[i]=k*.5*(d[i-N]+d[i-N-1]);return plucks[m]=b}
+  function pluck(m,t,v){const s=ctx.createBufferSource(),g=ctx.createGain();s.buffer=pluckBuf(m);g.gain.value=v*.11;s.connect(g);g.connect(gBus);s.start(t);s.stop(t+2.4)}
+  function strum(ch,t,dir,v){const n=dir>0?ch:ch.slice().reverse().slice(0,4);n.forEach((m,i)=>pluck(m,t+i*(dir>0?.013:.009),v*(dir>0?1:.6)*(.85+Math.random()*.3)))}
+  // ---- whistle: one held sine voice with scoops, articulation dips, delayed vibrato and a little breath
+  let wOsc,wEnv,wLfo,wBp;
+  function whistleInit(){wOsc=ctx.createOscillator();wOsc.type='sine';wOsc.frequency.value=784;wEnv=ctx.createGain();wEnv.gain.value=0;
+    const lfo=ctx.createOscillator();lfo.frequency.value=5.4;wLfo=ctx.createGain();wLfo.gain.value=0;lfo.connect(wLfo);wLfo.connect(wOsc.frequency);
+    const n=ctx.createBufferSource();n.buffer=noiseBuf;n.loop=true;wBp=ctx.createBiquadFilter();wBp.type='bandpass';wBp.Q.value=7;const ng=ctx.createGain();ng.gain.value=.06;n.connect(wBp);wBp.connect(ng);ng.connect(wEnv);
+    const out=ctx.createGain();out.gain.value=.15;wOsc.connect(wEnv);wEnv.connect(out);out.connect(music);wOsc.start();lfo.start();n.start()}
+  function whistle(m,t,dur,restAfter,fromRest){const f=mtof(m);
+    if(fromRest)wOsc.frequency.setValueAtTime(f*.955,t);wOsc.frequency.setTargetAtTime(f,t,fromRest?.03:.018);wBp.frequency.setValueAtTime(f,t);
+    wEnv.gain.setTargetAtTime(fromRest?0:.45,t-.012,.006);wEnv.gain.setTargetAtTime(1,t+.004,.02);
+    wLfo.gain.setTargetAtTime(0,t,.02);if(dur>.45)wLfo.gain.setTargetAtTime(f*.006,t+.22,.12);
+    if(restAfter)wEnv.gain.setTargetAtTime(0,t+dur*.88,.035)}
+  // ---- song: G major, 104 bpm, 16 bars; whistle on even passes, guitar-led first half on odd passes
+  const BEAT=60/104,BAR=BEAT*4,CH={G:[43,47,50,55,59,67],C:[48,52,55,60,64],D:[50,57,62,66],Em:[40,47,52,55,59,64]};
+  const PROG=['G','C','G','D','G','C','D','G','Em','C','G','D','Em','C','D','G'];
+  const MEL=[[[74,1],[79,1],[83,1.5],[81,.5]],[[79,1],[76,1],[79,2]],[[83,1],[86,1],[83,1],[79,1]],[[81,3],[0,1]],
+             [[74,1],[79,1],[83,1.5],[81,.5]],[[79,1],[88,1],[86,1],[84,1]],[[83,1],[81,1],[78,1],[81,1]],[[79,3],[0,1]],
+             [[83,1.5],[84,.5],[83,1],[79,1]],[[76,1],[79,1],[84,2]],[[83,1],[81,.5],[79,.5],[74,1],[79,1]],[[81,3],[0,1]],
+             [[83,1.5],[84,.5],[86,1],[88,1]],[[86,1],[84,1],[83,1],[81,1]],[[81,1],[83,.5],[81,.5],[78,1],[74,1]],[[79,2],[0,2]]];
+  const STRUM=[[0,1,1],[1,1,.8],[1.5,-1,.7],[2.5,-1,.6],[3,1,.85],[3.5,-1,.65]];
+  let nextBar=0,barI=0,pass=0,prevRest=true;
+  const whistled=(bar,ps)=>ps%2===0||bar>=8;
+  function scheduleBar(t){const ch=CH[PROG[barI]];for(const[b,d,v]of STRUM)strum(ch,t+b*BEAT+(b%1?BEAT*.07:0),d,v*(b===0?1.1:1));
+    if(whistled(barI,pass)){const mel=MEL[barI];let bt=0;mel.forEach(([m,len],i)=>{if(m){const nb=(barI+1)%16,nx=mel[i+1]||(whistled(nb,nb?pass:pass+1)?MEL[nb][0]:[0]);
+        whistle(m,t+bt*BEAT,len*BEAT,!nx[0],prevRest);prevRest=!nx[0]}else prevRest=true;bt+=len})}else prevRest=true;
+    barI=(barI+1)%16;if(!barI)pass++}
+  function tick(){if(!ctx||ctx.state!=='running')return;if(nextBar<ctx.currentTime)nextBar=ctx.currentTime+.08;while(nextBar<ctx.currentTime+.7){scheduleBar(nextBar);nextBar+=BAR}}
+  // ---- sound effects
+  const ok=()=>ctx&&!muted&&ctx.state==='running';
+  function env(g,t,peak,a,d){g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(peak,t+a);g.gain.exponentialRampToValueAtTime(.0001,t+a+d)}
+  function tone(type,f0,f1,t,peak,a,d,dest=sfx){const o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.setValueAtTime(f0,t);if(f1)o.frequency.exponentialRampToValueAtTime(f1,t+a+d);env(g,t,peak,a,d);o.connect(g);g.connect(dest);o.start(t);o.stop(t+a+d+.02)}
+  function noise(t,dur,peak,ftype,freq,q=1,rate=1){const s=ctx.createBufferSource(),f=ctx.createBiquadFilter(),g=ctx.createGain();s.buffer=noiseBuf;s.playbackRate.value=rate;f.type=ftype;f.frequency.value=freq;f.Q.value=q;
+    env(g,t,peak,.004,dur);s.connect(f);f.connect(g);g.connect(sfx);s.start(t,Math.random()*.8);s.stop(t+dur+.05)}
+  return{
+    start(){init();if(!ctx)return;if(ctx.state!=='running'&&!muted&&!document.hidden)ctx.resume();if(!started){started=true;nextBar=ctx.currentTime+.15;timer=setInterval(tick,100)}},
+    // toy star-blaster: bright falling "pew" + a bubbly goo bloop + tiny click
+    shoot(){if(!ok())return;const t=ctx.currentTime,r=.94+Math.random()*.12;tone('triangle',1500*r,330*r,t,.42,.005,.14);tone('sine',260*r,720*r,t+.015,.16,.01,.07);noise(t,.025,.12,'highpass',3000)},
+    // surface: 0 grass (soft swish), 1 dirt path (crunch), 2 cobbles (tap)
+    step(surface){if(!ok())return;const t=ctx.currentTime,r=.85+Math.random()*.3;
+      if(surface===0){noise(t,.075,.16,'lowpass',650*r,.7,.6);noise(t+.01,.05,.05,'bandpass',2200*r,2)}
+      else if(surface===1){noise(t,.06,.2,'bandpass',1400*r,1.2,.8);tone('sine',110*r,70,t,.12,.004,.06)}
+      else{noise(t,.03,.18,'bandpass',2600*r,3);tone('sine',190*r,150,t,.1,.002,.04)}},
+    hit(head){if(!ok())return;const t=ctx.currentTime;tone('sine',head?880:660,head?1320:880,t+.02,.2,.005,.08)},
+    ko(){if(!ok())return;const t=ctx.currentTime;[1568,1976,2349].forEach((f,i)=>tone('sine',f,0,t+i*.05,.16,.004,.14));noise(t,.12,.14,'bandpass',900,1.5)},
+    get muted(){return muted},get ctx(){return ctx},get out(){return master},
+    toggle(){muted=!muted;try{localStorage.setItem('bb-muted',muted?'1':'0')}catch(e){}if(ctx){if(muted)ctx.suspend();else{this.start();ctx.resume()}}return muted},
+    vis(){if(!ctx)return;if(document.hidden)ctx.suspend();else if(!muted)ctx.resume()}}})();
+['pointerdown','touchend','keydown'].forEach(ev=>addEventListener(ev,()=>A.start(),{passive:true}));
+document.addEventListener('visibilitychange',()=>A.vis());
+function syncSnd(){const b=$('snd');b.setAttribute('aria-pressed',A.muted?'true':'false');b.setAttribute('aria-label',A.muted?'Unmute sound':'Mute sound');b.classList.toggle('off',A.muted)}
+$('snd').addEventListener('click',()=>{A.toggle();syncSnd()});addEventListener('keydown',e=>{if(e.code==='KeyM'){A.toggle();syncSnd()}});syncSnd();
+
+// =====================================================================
 // 10. Feedback FX (pooled, visual only)
 // =====================================================================
 const FX=[],puffG=sp(1,8,6);
@@ -690,13 +769,13 @@ function stepFx(dt){for(const p of FX){if(!p.on)continue;p.life+=dt;const k=p.li
   else{p.v.multiplyScalar(1-3*dt);p.m.scale.setScalar(p.size*(.35+.65*(1-Math.pow(1-k,3))));p.m.material.opacity=(1-k)*.85}}}
 
 const rc=new THREE.Raycaster();
-function shoot(){kick=.12;fl.visible=true;fl.rotation.z=Math.random()*6;fl.scale.setScalar(.8+Math.random()*.5);setTimeout(()=>fl.visible=false,50);
+function shoot(){kick=.12;A.shoot();fl.visible=true;fl.rotation.z=Math.random()*6;fl.scale.setScalar(.8+Math.random()*.5);setTimeout(()=>fl.visible=false,50);
 rc.setFromCamera({x:0,y:0},C);const all=[...obsM];en.forEach(e=>all.push(...e.meshes));
 const h=rc.intersectObjects(all)[0];if(h&&!h.object.userData.e)fx('puff',h.point,0,.6,0,.35,.28,0xfff4e0);if(!h||!h.object.userData.e)return;
 const e=h.object.userData.e;e.hp-=h.object.userData.head?2:1;$('cross').classList.add('hit');setTimeout(()=>$('cross').classList.remove('hit'),90);
 e.meshes.forEach(m=>m.material.emissive.setHex(0xff4444));setTimeout(()=>e.meshes.forEach(m=>m.material.emissive.setHex(0)),70);
-e.hurt=1;burst(h.point,h.object.userData.head?4:2,0xffffff,2.5,.07);fx('puff',h.point,0,.4,0,.25,.22,0xffffff);
-if(e.hp<=0){S.remove(e.g);en=en.filter(x=>x!==e);kills++;info();S.add(e.g);dying.push({e,t:0})}}
+e.hurt=1;A.hit(h.object.userData.head);burst(h.point,h.object.userData.head?4:2,0xffffff,2.5,.07);fx('puff',h.point,0,.4,0,.25,.22,0xffffff);
+if(e.hp<=0){S.remove(e.g);en=en.filter(x=>x!==e);kills++;info();S.add(e.g);dying.push({e,t:0});A.ko()}}
 // controls
 let jx=0,jz=0,sid=null,lid=null,lx=0,ly=0;const st=$('stick'),kn=$('knob');
 function sv(e){const r=st.getBoundingClientRect();let dx=e.clientX-r.left-64,dy=e.clientY-r.top-64;const d=Math.hypot(dx,dy),m=60;if(d>m){dx*=m/d;dy*=m/d}kn.style.left=34+dx+'px';kn.style.top=34+dy+'px';jx=dx/m;jz=dy/m}
@@ -710,7 +789,7 @@ lk.addEventListener('pointermove',e=>{if(e.pointerId!==lid)return;yaw-=(e.client
 const le=e=>{if(e.pointerType==='mouse'&&e.button===0&&document.pointerLockElement===lk)holdF=false;if(e.pointerId===lid)lid=null};lk.addEventListener('pointerup',le);lk.addEventListener('pointercancel',le);
 // desktop mouse look: click to capture the mouse, move to aim, hold left button to fire, Esc to release
 const MOUSE=matchMedia('(pointer:fine)').matches,MSENS=.0022;
-function lockMouse(){if(MOUSE&&lk.requestPointerLock)lk.requestPointerLock()}
+function lockMouse(){if(!MOUSE||!lk.requestPointerLock)return;try{const p=lk.requestPointerLock();if(p&&p.catch)p.catch(()=>{})}catch(e){}}
 document.addEventListener('mousemove',e=>{if(document.pointerLockElement!==lk||!play)return;yaw-=e.movementX*MSENS;pitch=Math.max(-1.2,Math.min(1.2,pitch-e.movementY*MSENS))});
 document.addEventListener('pointerlockchange',()=>{const on=document.pointerLockElement===lk;if(!on)holdF=false;$('hint').classList.toggle('on',MOUSE&&play&&!on)});
 const fb=$('fire');fb.addEventListener('pointerdown',e=>{holdF=true;fb.setPointerCapture(e.pointerId)});
@@ -723,7 +802,7 @@ $('start').onclick=()=>{$('intro').classList.remove('on');go()};$('again').oncli
 // =====================================================================
 // 11. Loop (gameplay logic unchanged; visual layer layered around it)
 // =====================================================================
-let last=performance.now(),bobT=0,swayX=0,swayY=0,lastYaw=0,lastPitch=0,mv=0;
+let last=performance.now(),lastStep=0,bobT=0,swayX=0,swayY=0,lastYaw=0,lastPitch=0,mv=0;
 const m4=new THREE.Matrix4();
 function loop(t){const dt=Math.min((t-last)/1000,.05);last=t;const ts=t/1000;U.t.value=ts;
 cr.rotation.y+=dt*1.2;cr.position.y=2.6+Math.sin(t/500)*.2;
@@ -756,6 +835,8 @@ stepFx(dt);
   let x=s[0]+Math.sin(ts*.4+s[3])*1.2,z=s[2]+Math.cos(ts*.3+s[3])*1.2;x=((x-pl.x+28)%56+56)%56-28+pl.x;z=((z-pl.z+28)%56+56)%56-28+pl.z;a[i*3]=x;a[i*3+1]=s[1]+Math.sin(ts+s[3])*.3;a[i*3+2]=z}polG.attributes.position.needsUpdate=true}
 // first-person rig: walk bob, look sway, recoil, idle breathing
 mv+=((Math.min(1,Math.hypot(f,r)))-mv)*Math.min(1,dt*8);bobT+=dt*mv*9;
+// footsteps land on each half-cycle of the walk bob; the surface underfoot picks the sound
+const si=Math.floor(bobT/Math.PI);if(si!==lastStep){lastStep=si;if(play&&mv>.25)A.step(Math.hypot(pl.x,pl.z)<6.1?2:pathD(pl.x,pl.z)<1.5?1:0)}
 swayX+=((lastYaw-yaw)*1.2-swayX)*Math.min(1,dt*10);swayY+=((pitch-lastPitch)*1.2-swayY)*Math.min(1,dt*10);lastYaw=yaw;lastPitch=pitch;
 kick=Math.max(0,kick-dt*.6);
 gun.position.set(gunBase.x+Math.sin(bobT)*.014*mv+Math.max(-.05,Math.min(.05,swayX)),gunBase.y-Math.abs(Math.cos(bobT))*.012*mv+Math.sin(ts*1.6)*.003-Math.max(-.04,Math.min(.04,swayY)),-.6+kick);
@@ -763,7 +844,8 @@ gun.rotation.set(kick*2.2+Math.max(-.05,Math.min(.05,swayY))*.5,Math.max(-.08,Ma
 goo.rotation.y+=dt*3;goo.scale.set(1+Math.sin(ts*4)*.12,1-Math.sin(ts*4)*.1+kick*2,1);
 C.position.set(pl.x,1.6,pl.z);C.rotation.set(pitch,yaw,0);sky.position.copy(C.position);
 R.clear();R.render(S,C);R.clearDepth();R.render(GS,GC);
-frames++;frameAcc+=dt;if(frameAcc>2){if(frameAcc/frames>1/45&&PR>1){PR=Math.max(1,PR-.25);rs()}frames=0;frameAcc=0}
+// ignore the first seconds (shader compile, asset build) and single hitches: drop only after two slow 2s windows in a row
+if(ts>5){frames++;frameAcc+=dt;if(frameAcc>2){slowWin=frameAcc/frames>1/45?slowWin+1:0;if(slowWin>=2&&PR>1){PR=Math.max(1,PR-.25);rs();slowWin=0}frames=0;frameAcc=0}}
 requestAnimationFrame(loop)}
 requestAnimationFrame(loop);
 </script></body></html>
