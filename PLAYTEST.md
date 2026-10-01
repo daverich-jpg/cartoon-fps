@@ -1,115 +1,196 @@
 # Block Blast playtest kit
 
-A small, honest usability study you can run this week with 5–6 friends. It produces before/after evidence for the portfolio case study.
+A small usability study of the **current build**, run with friends on their own phones. It tells us what to fix next, and the findings feed the portfolio case study.
 
-| Version | Link | What it is |
+**Game link:** https://daverich-jpg.github.io/cartoon-fps/
+
+**How it works:** test with 5 people → turn notes into findings → fix the top issues → test again with new people. Each pass is a *round*.
+
+---
+
+## 1. What we're testing
+
+The current build includes these features. Each research question checks whether one of them works for real players.
+
+| # | Research question | Feature it checks |
 |---|---|---|
-| **Before** | https://daverich-jpg.github.io/cartoon-fps/before/ | The visual overhaul with sound, *before* the UX research (commit `abbf56c`) |
-| **After** | https://daverich-jpg.github.io/cartoon-fps/ | Current: aim-while-firing + aim assist, threat indicators, onboarding, star feed, end screen, pause/settings |
+| RQ1 | Can first-time players get their first KO without any help? How long does it take? | First-run onboarding (look → walk → fire → heads) |
+| RQ2 | Can players aim and shoot comfortably on a phone? | Hold FIRE and slide to aim; touch aim assist; on-target crosshair |
+| RQ3 | When players get hurt, do they know where it came from? | Tangerine damage arcs; edge chevrons for nearby Grinnies |
+| RQ4 | Do players use head shots on purpose? | Onboarding step 4; "BONK!" on head hits |
+| RQ5 | What do players think the gold Wishing Star is for? | Sparkles fly from each KO into the star |
+| RQ6 | At game over, do players want to go again or share? | End screen: stats, best score, Share button |
+| RQ7 | Does anything feel broken, slow or uncomfortable on their phone? | Performance, layout, sound, pause/settings |
 
-## 1. What we want to learn (research questions)
+**Baseline:** my own notes from playing the earlier build (https://daverich-jpg.github.io/cartoon-fps/before/) go in the Baseline section of the log (section 7). They're useful context, but they're one person who already knew the game. Friends' sessions are the real data.
 
-Each question maps to a change from the gap analysis.
-
-| # | Research question | Change it tests |
-|---|---|---|
-| RQ1 | Can first-time players aim and shoot comfortably on a phone? | Aim while firing + aim assist |
-| RQ2 | When players get hurt, do they know where it came from? | Damage arcs + edge chevrons |
-| RQ3 | Can a first-timer get their first KO without help? How long does it take? | Teach-by-doing onboarding |
-| RQ4 | Do players discover head shots (double damage) on their own? | Onboarding step 4 + BONK! |
-| RQ5 | What do players think the gold Wishing Star is for? | Star feed |
-| RQ6 | At the end, do players want to go again or share? | End screen + Share |
+---
 
 ## 2. Setup
 
-- **People:** 6 if you can (5 minimum). Nobody who has played it before.
-- **Split:** 3 play **Before**, 3 play **After**. Each person plays only one version first, so neither "learns" the game from the other version. At the very end, let them try the other version for 1 minute and ask which they prefer.
-- **Device:** their own phone, held sideways, sound on. If you lend your phone, open the link in a **private/incognito tab** so the first-run tutorial shows. (Tutorial progress, best score and settings are saved per browser.)
+- **Who:** 5 people per round, people who haven't played before. A mix helps: some who game a lot, some who rarely do.
+- **Device:** *their own* phone, held sideways, sound on.
+  - If you lend your phone, open the link in a **private/incognito tab**. The tutorial only shows on a player's first visit, and best score and settings are saved in the browser.
+  - iPhone: check the silent switch is off, or there'll be no sound.
 - **Time:** about 15 minutes each, in person if possible. Sit beside them so you can see the screen.
-- **Kit:** a stopwatch (your phone), this sheet, and optionally a screen recording. Ask first.
+- **You need:** a stopwatch (your phone), a copy of the note sheet (section 5), and optionally screen recording (ask first).
 
-**Be honest about scale:** 6 people won't give you statistics. They give you *directional* evidence and real quotes, which is what a portfolio case study needs. Write it up that way.
+> Honest framing for the case study: 5 people won't give you statistics. They give you *directional* evidence, patterns that repeat, and real quotes. That's normal for usability testing. Say so in the write-up.
 
-## 3. Session script (read roughly as written)
+---
 
-> "Thanks for helping! I'm testing a little game I designed, not you. There are no wrong answers, and if something's confusing that's useful for me. Please think out loud as you play: say what you're looking at, what you're trying to do, and anything that surprises you. I won't help while you play, but I'll answer everything after. Is it OK if I take notes / record the screen?"
+## 3. Session script
 
-Then:
-1. Hand over the phone with the link open on the start screen. Say only: **"Play it however you like until you lose or want to stop."**
-2. **Start the stopwatch when they tap Play.** Note the time of their **first KO**.
-3. Stay quiet. If they're stuck for more than 30 seconds, say only "What are you trying to do?", and note that you prompted them.
-4. Let them play until game over (or 5 minutes). If they want to, let them play again; *that's a data point*.
-5. Ask the questions in section 4.
-6. Let them try the other version for about 1 minute, then ask the preference question.
+**Intro (read roughly as written):**
+> "Thanks for helping! I'm testing a game I designed, not you. There are no wrong answers. If something's confusing, that's exactly what I need to know. Please think out loud while you play: what you're looking at, what you're trying to do, anything that surprises or annoys you. I won't help while you play, but I'll answer everything afterwards. Is it OK if I take notes or record the screen?"
 
-**Don't:** explain controls, say "try the head", point at things, or react when they do well or badly. Watch what they do, and write down what they say word for word.
+**Play:**
+1. Hand over the phone with the game open on the start screen. Say only: **"Play however you like until you lose or want to stop."**
+2. **Start the stopwatch when they tap Play.** Write down the time of their **first KO**.
+3. Stay quiet. If they're stuck for 30+ seconds, say only *"What are you trying to do?"* and mark that you prompted them.
+4. Let them play to game over (or 5 minutes). Note what they do on the end screen *before* you say anything.
+5. If they choose to play again, let them. That's a good sign; note it.
+
+**Don't:**
+- explain the controls
+- hint ("try the head")
+- point at the screen
+- react when they do well or badly
+
+Watch what they *do*, and write down what they *say* word for word.
+
+---
 
 ## 4. Post-play questions
 
+Ask in this order. Questions 4 and 5 don't name the answer, so you don't lead them.
+
 1. "In one sentence, what is this game about?"
-2. "How did aiming and shooting feel? Anything awkward?" (RQ1)
-3. "When you got hurt, did you know where it came from?" (RQ2)
-4. "Did anything do extra damage?" Don't mention heads. (RQ4)
-5. "What do you think the big gold star is for?" (RQ5)
-6. "What did you want to do when the game ended?" (RQ6)
-7. *(After trying the other version)* "Which one would you rather keep playing, and why?"
+2. "How did aiming and shooting feel? Anything awkward?" *(RQ2)*
+3. "When you got hurt, did you know where it came from?" *(RQ3)*
+4. "Did anything do extra damage?" *(RQ4; don't mention heads)*
+5. "What do you think the big gold star is for?" *(RQ5)*
+6. "What did you want to do when the game ended?" *(RQ6)*
+7. "Was anything slow, glitchy, hard to see, or uncomfortable on your phone?" *(RQ7)*
+8. "If you could change one thing, what would it be?"
 
-## 5. Note sheet (copy one per person)
+---
+
+## 5. Note sheet (one per person)
 
 ```
-Participant: P__   Version first: Before / After   Phone: ________   Played before? N
-Time to first KO: ____ s        Prompted by me? Y / N (when: ____)
-Wave reached: ____   KOs: ____  Played again unprompted? Y / N   Tapped Share? Y / N (After only)
+Round: __   Participant: P__   Phone/browser: ______________   Plays games: often / sometimes / rarely
 
-Watch for (tally):
-  Tried to aim and shoot at the same time and struggled     | ____
-  Got hit and looked around confused / said "where?!"      | ____
-  Aimed at heads on purpose (before I asked)               | Y / N   (wave __)
-  Hesitated or got confused about controls                 | ____ (what: ________)
-  Commented on the look, sound, or characters              | quotes below
+TIMING
+  Time to first KO: ____ s            Prompted by me? Y / N  (when: ____)
+  Finished onboarding? Y / N           Stuck on step: look / walk / fire / heads / none
+  Wave reached: ____   KOs: ____   Hit %: ____   (from the end screen)
 
-Answers:
-  Q1 about: ______________________________________________
-  Q2 aiming: _____________________________________________
-  Q3 hurt direction: _____________________________________
-  Q4 extra damage: _______________________________________
-  Q5 gold star: __________________________________________
-  Q6 at the end: _________________________________________
-  Q7 preference + why: ___________________________________
+ON THE END SCREEN (before you speak)
+  Played again unprompted? Y / N       Tapped Share? Y / N       Looked at stats? Y / N
 
-Best quote (word for word): "_____________________________________"
-Biggest problem I saw: _________________________________________
+TALLIES (mark each time you see it)
+  Struggled to aim while shooting ............................. | ____
+  Got hit and looked around confused / said "where?!" ......... | ____
+  Aimed at heads on purpose before Q4 ......................... | Y / N  (wave __)
+  Confused by a control or prompt ............................. | ____  (which: ________)
+  Performance / layout / sound issue .......................... | ____  (what: ________)
+  Opened pause or settings .................................... | Y / N  (changed: ________)
+
+ANSWERS
+  Q1 about: _____________________________________________________
+  Q2 aiming: ____________________________________________________
+  Q3 hurt direction: ____________________________________________
+  Q4 extra damage: ______________________________________________
+  Q5 gold star: _________________________________________________
+  Q6 end of game: _______________________________________________
+  Q7 phone issues: ______________________________________________
+  Q8 change one thing: __________________________________________
+
+Best quote (word for word): "______________________________________"
+Biggest problem I saw: ___________________________________________
 ```
 
-## 6. Making sense of it (after all sessions)
+---
 
-1. **Fill in the comparison table.**
+## 6. Turning notes into fixes
 
-   | Measure | Before (P1–P3) | After (P4–P6) |
-   |---|---|---|
-   | Median time to first KO | | |
-   | # who got a KO without a prompt | /3 | /3 |
-   | # who aimed at heads unprompted | /3 | /3 |
-   | # who knew where damage came from | /3 | /3 |
-   | # who could explain the star | /3 | /3 |
-   | # who played again unprompted | /3 | /3 |
-   | Preferred version (all 6) | | |
+Do this after each round of 5.
 
-2. **List the problems you saw.** Rate each by severity:
-   - **3** blocks the goal
-   - **2** slows or frustrates
-   - **1** cosmetic
+**Step 1: Fill in the scorecard.**
 
-   Count how many people hit it. Fix anything that is severity 3, or severity 2 and seen in 2+ people.
-3. **Pull 3–4 quotes**, at least one that's critical. Case studies with only praise read as unreliable.
-4. **Decide** what to change next, and what you'll *leave alone* because the evidence didn't support it. (For example, build "defend the Wishing Star" only if people said the game lacks a goal.)
+| Measure | Target | Round 1 | Round 2 |
+|---|---|---|---|
+| Median time to first KO | under 45 s | | |
+| Got first KO with no prompt | 5/5 | /5 | /5 |
+| Finished the onboarding | 5/5 | /5 | /5 |
+| Aimed at heads before Q4 | 3/5+ | /5 | /5 |
+| Knew where damage came from (Q3) | 4/5+ | /5 | /5 |
+| Could explain the gold star (Q5) | 3/5+ | /5 | /5 |
+| Played again unprompted | 3/5+ | /5 | /5 |
+| Reported a performance/layout issue | 0/5 | /5 | /5 |
 
-## 7. Messages to send
+The targets are a starting point. Adjust them if they turn out unrealistic, and say so in the case study.
 
-**Remote, if you can't sit with them** (less rich, still useful):
-> Hey! I designed a little cartoon game and I'd love 10 minutes of honest feedback. Open this on your phone, turn it sideways with sound on, and play until you lose: [LINK]. Then reply with: 1) what the game is about in one sentence, 2) anything confusing or annoying, 3) what you think the gold star does, 4) your wave + KOs from the end screen. Brutal honesty welcome 🙏
+**Step 2: List every problem** you saw or heard. Give each one a severity and count how many people hit it:
+- **3, blocker:** stops them reaching their goal (e.g. can't figure out how to shoot)
+- **2, major:** slows them down or frustrates them (e.g. keeps getting hit from behind)
+- **1, minor:** cosmetic or a one-off
 
-For remote testers you can't time first KO yourself, so ask them to screen-record if they're willing.
+**Step 3: Decide.**
+- **Fix now:** any severity 3, and any severity 2 seen in 2+ people.
+- **Watch:** severity 2 seen once, or severity 1 seen in 3+ people.
+- **Leave:** everything else. Write down *why* you're leaving it; a case study that shows restraint reads well.
+- Only add big new features (e.g. a "defend the Wishing Star" mode) if the evidence asks for it. For example: people can't say what the game's goal is (Q1), or don't play again (RQ6).
+
+**Step 4: Log it** in section 7, then fix, then run Round 2 with *new* people to check the fixes worked.
+
+---
+
+## 7. Findings log
+
+### Baseline: my own notes on the earlier build (before/)
+
+- 
+- 
+
+### Round 1 (date: ______, build: `commit ______`)
+
+| # | Problem | Severity | Seen by | Evidence (quote / observation) | Decision | Fix (commit) |
+|---|---|---|---|---|---|---|
+| 1 | | | /5 | | Fix / Watch / Leave | |
+| 2 | | | /5 | | | |
+| 3 | | | /5 | | | |
+
+**Best quotes:**
+- "" (P_)
+- "" (P_)
+
+**What worked (keep):**
+- 
+
+### Round 2 (date: ______, build: `commit ______`)
+
+| # | Problem | Severity | Seen by | Evidence | Decision | Fix (commit) |
+|---|---|---|---|---|---|---|
+| 1 | | | /5 | | | |
+
+---
+
+## 8. Messages to send
+
+**Asking someone to test in person:**
+> Hey! I designed a little cartoon game and I'd love 15 minutes of you playing it while I watch. You'll be testing the game, not being tested 😄 Free sometime this week?
+
+**Remote, if you can't sit with them** (less detail, still useful; ask for a screen recording if they're up for it):
+> Hey! I designed a little cartoon game and I'd love honest feedback. Open this on your phone, turn it sideways with sound on, and play until you lose: https://daverich-jpg.github.io/cartoon-fps/
+> Then reply with:
+> 1) what the game is about, in one sentence
+> 2) anything confusing, awkward or annoying
+> 3) what you think the gold star does
+> 4) your wave + KOs from the end screen
+> 5) one thing you'd change
+> Brutal honesty welcome 🙏
 
 **Just sharing for fun** (after testing):
 > Made a little cartoon shooter, play it here: https://daverich-jpg.github.io/cartoon-fps/ (best on your phone sideways, sound on 🔊)
