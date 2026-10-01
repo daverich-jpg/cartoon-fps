@@ -689,7 +689,7 @@ const A=(()=>{let ctx=null,master,music,sfx,noiseBuf,muted=false,started=false,t
   const mtof=m=>440*Math.pow(2,(m-69)/12);
   function init(){if(ctx)return;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;ctx=new AC();
     master=ctx.createGain();master.gain.value=1;const comp=ctx.createDynamicsCompressor();comp.threshold.value=-16;comp.ratio.value=3;master.connect(comp);comp.connect(ctx.destination);
-    music=ctx.createGain();music.gain.value=.5;sfx=ctx.createGain();sfx.gain.value=.75;music.connect(master);sfx.connect(master);
+    music=ctx.createGain();music.gain.value=.3;sfx=ctx.createGain();sfx.gain.value=.8;music.connect(master);sfx.connect(master);
     // small warm room
     const len=ctx.sampleRate*1.5|0,ir=ctx.createBuffer(2,len,ctx.sampleRate);for(let c=0;c<2;c++){const d=ir.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,3.2)}
     const rev=ctx.createConvolver();rev.buffer=ir;const wet=ctx.createGain();wet.gain.value=.22;rev.connect(wet);wet.connect(master);music.connect(rev);
