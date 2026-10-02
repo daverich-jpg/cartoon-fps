@@ -154,20 +154,29 @@ The targets are a starting point. Adjust them if they turn out unrealistic, and 
 - 
 - 
 
-### Round 1 (date: ______, build: `commit ______`)
+### Round 1 (date: 2 Oct 2026, build: `commit 13416c8`)
+
+P1 and P2 played remotely and answered the questions; David added an expert review of the UI.
 
 | # | Problem | Severity | Seen by | Evidence (quote / observation) | Decision | Fix (commit) |
 |---|---|---|---|---|---|---|
-| 1 | | | /5 | | Fix / Watch / Leave | |
-| 2 | | | /5 | | | |
-| 3 | | | /5 | | | |
+| 1 | Gold star's purpose not understood; the intro text was doing the teaching | 2 | 2/2 | P2: "I have no idea". P1: "I would've been confused if I didn't read that" | **Fix:** the star becomes the reward. A HUD star meter fills with each KO; clearing a wave grants a wish | see below |
+| 2 | No reward for clearing waves, no enemy variety; "just keeps getting harder" | 2 | 1/2 (+ research gap) | P1: "some reward for completing waves… no rewards or other types of enemies" | **Fix:** wish upgrades (pick 1 of 3); Zippy Grinnies from wave 3, Big Grinnies from wave 5 | see below |
+| 3 | Character animation feels off | ? | 1/2 | P2: "the character animation?" Unclear what or why | **Watch:** ask P2 which character and what felt wrong before changing anything | n/a |
+| 4 | Title stars render with several stacked shadows | 1 | expert | David: "one individual star has several shadows. It doesn't look natural" | **Fix:** single outline + one drop shadow | see below |
+| 5 | Portrait HUD: pause/sound squashed into ovals; Wave/KO pill wraps and floats over the scene | 2 | expert | David's screenshot | **Fix:** stats moved under the health bar as plain outlined text; icon buttons can't shrink; wish meter centred | see below |
 
 **Best quotes:**
-- "" (P_)
-- "" (P_)
+- "It just keeps getting harder and harder with no rewards or other types of enemies" (P1)
+- "Shooting blobs" (P2, describing the game; it doesn't yet read as a world with a goal)
 
 **What worked (keep):**
-- 
+- P2's reaction to the end screen and stats: "love"
+
+**Open questions for Round 2:**
+- Can new players say what the gold star does *without* reading the intro? (Target: 3/5)
+- Do players feel rewarded after a wave? Ask "What happened when you cleared a wave?"
+- Do players notice the new Grinnie types, and do they change how they play?
 
 ### Round 2 (date: ______, build: `commit ______`)
 

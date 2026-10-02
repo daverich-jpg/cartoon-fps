@@ -24,8 +24,10 @@ Needs internet for two CDN resources: three.js r128 and the Fredoka font (see Co
 |---|---|
 | Player HP | 100; each enemy touch costs 10, once per 0.8 s per enemy |
 | Fire rate | 1 shot / 0.2 s, hitscan raycast from screen centre |
-| Enemy HP | 3. Head hit = 2 damage, body/limb hit = 1 |
-| Waves | Wave *n* spawns 2 + 2n enemies, speed 2 + 0.25n; next wave 1.8 s after clear |
+| Enemy HP | Normal 3, Zippy 2, Big 6. Head hit = 2 damage, body/limb hit = 1 (×2 on a Lucky shot) |
+| Enemy kinds | Zippy (×0.78 size, ×1.45 speed) every 3rd Grinnie from wave 3; Big (×1.32 size, ×0.7 speed): floor((wave−3)/2) per wave from wave 5 |
+| Waves | Wave *n* spawns 2 + 2n enemies, base speed 2 + 0.25n (× kind multiplier). On clear: after 1 s the Wishing Star offers a wish (game paused until picked), then the next wave 0.9 s later |
+| Wishes | Pick 1 of 3 (only useful ones are offered): Snack time +40 HP · Big heart +25 max HP (cap 200) · Zippy blaster fire interval ×0.8 (min 0.1 s) · Bouncy boots move ×1.15 (cap ~1.52) · Lucky stars +15% double-damage chance (cap 45%) |
 | Arena | Flat, clamped to ±38 units; 12 cover objects (same positions/radii as the old pillars) + the Wishing Star as cover |
 | Score | KO count and wave number only; no persistence |
 
