@@ -160,11 +160,11 @@ P1 and P2 played remotely and answered the questions; David added an expert revi
 
 | # | Problem | Severity | Seen by | Evidence (quote / observation) | Decision | Fix (commit) |
 |---|---|---|---|---|---|---|
-| 1 | Gold star's purpose not understood; the intro text was doing the teaching | 2 | 2/2 | P2: "I have no idea". P1: "I would've been confused if I didn't read that" | **Fix:** the star becomes the reward. A HUD star meter fills with each KO; clearing a wave grants a wish | see below |
-| 2 | No reward for clearing waves, no enemy variety; "just keeps getting harder" | 2 | 1/2 (+ research gap) | P1: "some reward for completing waves… no rewards or other types of enemies" | **Fix:** wish upgrades (pick 1 of 3); Zippy Grinnies from wave 3, Big Grinnies from wave 5 | see below |
+| 1 | Gold star's purpose not understood; the intro text was doing the teaching | 2 | 2/2 | P2: "I have no idea". P1: "I would've been confused if I didn't read that" | **Fix:** the star becomes the reward. A HUD star meter fills with each KO; clearing a wave grants a wish | `bbd596f` |
+| 2 | No reward for clearing waves, no enemy variety; "just keeps getting harder" | 2 | 1/2 (+ research gap) | P1: "some reward for completing waves… no rewards or other types of enemies" | **Fix:** wish upgrades (pick 1 of 3); Zippy Grinnies from wave 3, Big Grinnies from wave 5 | `bbd596f` |
 | 3 | Character animation feels off | ? | 1/2 | P2: "the character animation?" Unclear what or why | **Watch:** ask P2 which character and what felt wrong before changing anything | n/a |
-| 4 | Title stars render with several stacked shadows | 1 | expert | David: "one individual star has several shadows. It doesn't look natural" | **Fix:** single outline + one drop shadow | see below |
-| 5 | Portrait HUD: pause/sound squashed into ovals; Wave/KO pill wraps and floats over the scene | 2 | expert | David's screenshot | **Fix:** stats moved under the health bar as plain outlined text; icon buttons can't shrink; wish meter centred | see below |
+| 4 | Title stars render with several stacked shadows | 1 | expert | David: "one individual star has several shadows. It doesn't look natural" | **Fix:** single outline + one drop shadow | `bbd596f` |
+| 5 | Portrait HUD: pause/sound squashed into ovals; Wave/KO pill wraps and floats over the scene | 2 | expert | David's screenshot | **Fix:** stats moved under the health bar as plain outlined text; icon buttons can't shrink; wish meter centred | `bbd596f` |
 
 **Best quotes:**
 - "It just keeps getting harder and harder with no rewards or other types of enemies" (P1)
