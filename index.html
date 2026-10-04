@@ -71,6 +71,7 @@ canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block}
 body.lefty #stick{left:auto;right:calc(22px + env(safe-area-inset-right,0px))}body.lefty #fire{right:auto;left:calc(24px + env(safe-area-inset-left,0px))}
 .ov button.wcard{display:flex;flex-direction:column;align-items:center;gap:4px;width:min(160px,29vw);padding:12px 8px;background:var(--cream);font-size:18px;line-height:1.15}
 .wcard small{font:500 14px 'Fredoka',sans-serif;opacity:.8}.wcard .ic{font-size:32px;line-height:1}
+#getapp{min-height:46px;display:flex;align-items:center;justify-content:center}.ov button.small{font-size:18px;padding:7px 22px;box-shadow:0 5px 0 var(--ink)}
 #ioshint{font-size:15px;color:var(--cream);text-shadow:0 2px 0 var(--ink);max-width:320px}#ioshint b{color:#fff}
 [hidden]{display:none!important}
 .row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}.ov button.ghost{background:var(--cream)}
@@ -108,7 +109,7 @@ body.card #top,body.card #stick,body.card #fire,body.card #cross,body.card #intr
 <div class="hud" id="hint">Click to aim · Esc to pause</div><div class="hud" id="tip" role="status" aria-live="polite"></div><div class="hud" id="cross"></div><div class="hud" id="banner"></div>
 <div id="stick"><div id="knob"></div></div>
 <button id="fire">FIRE</button>
-<div class="ov on" id="intro"><h1>Block Blast</h1><p>Pop the goofy Grinnies before they get you. Clear a wave and the Wishing Star grants you a wish!</p><div class="row"><button id="start" disabled>Building the village…</button><button id="install" class="ghost" hidden>Install app</button></div><small id="ioshint" hidden>To install: tap <b>Share</b>, then <b>Add to Home Screen</b></small></div>
+<div class="ov on" id="intro"><h1>Block Blast</h1><p>Pop the goofy Grinnies before they get you. Clear a wave and the Wishing Star grants you a wish!</p><button id="start" disabled>Building the village…</button><div id="getapp"><button id="install" class="ghost small" hidden>Install app</button><small id="ioshint" hidden>To install: tap <b>Share</b>, then <b>Add to Home Screen</b></small></div></div>
 <div class="ov" id="paused" role="dialog" aria-modal="true" aria-labelledby="pt"><h1 id="pt">Paused</h1>
 <div class="card"><label class="sl">Look speed <input type="range" id="sens" min="0.5" max="2" step="0.1"></label>
 <label class="tg"><input type="checkbox" id="assist"> Aim assist <small>(touch)</small></label>
@@ -1033,5 +1034,9 @@ requestAnimationFrame(loop);
 // ?card: a posed still for link-preview images (no controls, three Grinnies on the path)
 if(/[?&]card\b/.test(location.search)){document.body.classList.add('card');gun.visible=false;spawnWave();$('banner').textContent='';
   [[-2.1,0,15.2,.35],[.3,0,14.2,0],[2.5,0,15.4,-.35]].forEach(([x,y,z,r],i)=>{const e=en[i];if(!e)return;e.g.position.set(x,y,z);e.g.rotation.y=r;e.g.scale.setScalar(1);e.l1.rotation.x=.4;e.l2.rotation.x=-.3;e.a1.rotation.x=-1.2;e.a2.rotation.x=-.4})}
-applySet();requestAnimationFrame(()=>requestAnimationFrame(()=>{const b=$('start');b.disabled=false;b.textContent='Play'}));
+applySet();
+// Compile every shader now (while the start screen says "Building the village…") instead of on the first frame,
+// then unlock Play straight away. Waiting for frames left Play disabled for seconds on phones, so taps did nothing.
+try{R.compile(S,C);R.compile(GS,GC)}catch(e){}
+{const b=$('start');b.disabled=false;b.textContent='Play'}
 </script></body></html>

@@ -1,7 +1,7 @@
 // Block Blast service worker: makes the installed app open instantly and work offline.
 // The page is network-first (so new versions arrive as soon as you're online);
 // everything else (three.js, font, icons) is served from cache and refreshed in the background.
-const CACHE = 'bb-v1';
+const CACHE = 'bb-v2';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png',
   'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'];
 
