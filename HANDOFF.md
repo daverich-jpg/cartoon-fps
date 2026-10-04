@@ -48,6 +48,8 @@ Mouse aiming gets no assist. Every input gets the **on-target crosshair** (the r
 - **Pause & settings:** pause via the HUD button, P, Esc (losing the mouse lock), or hiding the tab. Settings, saved in `bb-set`: look speed 0.5–2×, touch aim assist on/off, left-handed (swaps stick and FIRE), sound.
 - **Loading:** Play reads "Building the village…" and stays disabled until the first frame renders.
 
+**Installable app (PWA):** `manifest.webmanifest` (fullscreen, landscape, Grinnie icons in `icons/`) + `sw.js` (offline cache; the page is network-first so updates arrive when online; bump `CACHE` in sw.js when changing cached assets). Android/desktop Chrome: an "Install app" button appears on the start screen (`beforeinstallprompt`). iPhone: a hint says Share → Add to Home Screen. In the browser (not installed), tapping Play or Resume on a touch device enters full screen and locks landscape, hiding the URL bar. Icons were rendered from the game (isolated Grinnie) via the `.shots` harness.
+
 ## Art direction
 
 **Goal:** it should feel like playing an FPS inside an animated cartoon: illustrative, warm, whimsical, slightly surreal. Not low-poly assets, not realistic. Inspired by the *feeling* of modern whimsical cartoons; no copied characters or locations.

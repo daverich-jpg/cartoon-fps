@@ -12,6 +12,13 @@
 <meta property="og:image:alt" content="Three orange cartoon creatures with toothy grins on a dirt path in a whimsical village, under the title Block Blast">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#9fd0ea">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/favicon-64.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Block Blast">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
@@ -64,6 +71,8 @@ canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block}
 body.lefty #stick{left:auto;right:calc(22px + env(safe-area-inset-right,0px))}body.lefty #fire{right:auto;left:calc(24px + env(safe-area-inset-left,0px))}
 .ov button.wcard{display:flex;flex-direction:column;align-items:center;gap:4px;width:min(160px,29vw);padding:12px 8px;background:var(--cream);font-size:18px;line-height:1.15}
 .wcard small{font:500 14px 'Fredoka',sans-serif;opacity:.8}.wcard .ic{font-size:32px;line-height:1}
+#ioshint{font-size:15px;color:var(--cream);text-shadow:0 2px 0 var(--ink);max-width:320px}#ioshint b{color:#fff}
+[hidden]{display:none!important}
 .row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}.ov button.ghost{background:var(--cream)}
 .best{display:inline-block;background:var(--gold);border:3px solid var(--ink);border-radius:99px;padding:0 10px;margin-left:8px;font-size:15px}
 #score small{font-size:15px;opacity:.8}
@@ -99,7 +108,7 @@ body.card #top,body.card #stick,body.card #fire,body.card #cross,body.card #intr
 <div class="hud" id="hint">Click to aim · Esc to pause</div><div class="hud" id="tip" role="status" aria-live="polite"></div><div class="hud" id="cross"></div><div class="hud" id="banner"></div>
 <div id="stick"><div id="knob"></div></div>
 <button id="fire">FIRE</button>
-<div class="ov on" id="intro"><h1>Block Blast</h1><p>Pop the goofy Grinnies before they get you. Clear a wave and the Wishing Star grants you a wish!</p><button id="start" disabled>Building the village…</button></div>
+<div class="ov on" id="intro"><h1>Block Blast</h1><p>Pop the goofy Grinnies before they get you. Clear a wave and the Wishing Star grants you a wish!</p><div class="row"><button id="start" disabled>Building the village…</button><button id="install" class="ghost" hidden>Install app</button></div><small id="ioshint" hidden>To install: tap <b>Share</b>, then <b>Add to Home Screen</b></small></div>
 <div class="ov" id="paused" role="dialog" aria-modal="true" aria-labelledby="pt"><h1 id="pt">Paused</h1>
 <div class="card"><label class="sl">Look speed <input type="range" id="sens" min="0.5" max="2" step="0.1"></label>
 <label class="tg"><input type="checkbox" id="assist"> Aim assist <small>(touch)</small></label>
@@ -893,7 +902,7 @@ let paused=false;
 function setPause(on){if(on&&!play)return;if(!on&&wishOpen){$('paused').classList.remove('on');return}paused=on;$('paused').classList.toggle('on',on);
   if(on){holdF=false;jx=jz=0;$('knob').style.left=$('knob').style.top='34px';$('sound').checked=!A.muted;if(document.pointerLockElement)document.exitPointerLock();$('hint').classList.remove('on')}
   else{lockMouse();$('hint').classList.toggle('on',MOUSE&&document.pointerLockElement!==lk)}}
-$('pz').addEventListener('click',()=>setPause(true));$('resume').addEventListener('click',()=>setPause(false));
+$('pz').addEventListener('click',()=>setPause(true));$('resume').addEventListener('click',()=>{goFull();setPause(false)});
 $('sound').addEventListener('change',e=>{if(e.target.checked===A.muted){A.toggle();syncSnd()}});
 addEventListener('keydown',e=>{if((e.code==='KeyP'||e.code==='Escape')&&play&&!document.pointerLockElement)setPause(!paused)});
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&play)setPause(true)});
@@ -951,7 +960,19 @@ function aimAssist(dt){let best=null,bR=1,bey=0,bep=0,bra=0,berr=0;
   if(best&&assist&&holdF){const k=Math.min(1,AA.pull*dt),c=AA.maxRate*dt;yaw+=Math.max(-c,Math.min(c,bey*k));pitch=Math.max(-1.2,Math.min(1.2,pitch+Math.max(-c,Math.min(c,bep*k))))}}
 const K={};addEventListener('keydown',e=>{K[e.code]=1;if(e.code==='Space'&&!paused)holdF=true});addEventListener('keyup',e=>{K[e.code]=0;if(e.code==='Space')holdF=false});
 function reset(){paused=false;wishOpen=false;$('paused').classList.remove('on');$('wishes').classList.remove('on');maxHp=100;FR=.2;moveMul=1;luck=0;wishes=0;shots=hitsN=0;starCharge=0;tutStart();en.forEach(e=>S.remove(e.g));en=[];hp=100;prevHp=100;wave=0;kills=0;pl.x=0;pl.z=20;yaw=0;pitch=0;setHp();play=true;pause=0;spawnWave();$('over').classList.remove('on')}
-const go=()=>{reset();$('hint').classList.toggle('on',MOUSE&&document.pointerLockElement!==lk);lockMouse()};
+// installable app: Android/desktop Chrome offer an install prompt; iPhone needs Share → Add to Home Screen.
+// When it's not installed, tapping Play on a touch device switches to full screen (hides the URL bar) and locks landscape.
+const STANDALONE=matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches||navigator.standalone===true;
+const IOS=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+let installEvt=null;
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e;$('install').hidden=false});
+addEventListener('appinstalled',()=>{installEvt=null;$('install').hidden=true});
+$('install').addEventListener('click',async()=>{if(!installEvt)return;installEvt.prompt();try{await installEvt.userChoice}catch(e){}installEvt=null;$('install').hidden=true});
+if(IOS&&!STANDALONE)$('ioshint').hidden=false;
+function goFull(){if(STANDALONE||!matchMedia('(pointer: coarse)').matches)return;const el=document.documentElement,rq=el.requestFullscreen||el.webkitRequestFullscreen;
+  if(!rq||document.fullscreenElement)return;try{const p=rq.call(el,{navigationUI:'hide'});const lock=()=>{try{screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{})}catch(e){}};if(p&&p.then)p.then(lock).catch(()=>{});else lock()}catch(e){}}
+if('serviceWorker' in navigator&&location.protocol!=='file:')addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+const go=()=>{goFull();reset();$('hint').classList.toggle('on',MOUSE&&document.pointerLockElement!==lk);lockMouse()};
 $('share').onclick=async()=>{const text='I reached wave '+wave+' with '+kills+' KOs in Block Blast ⭐ Can you beat me?',url=location.href.split('#')[0],b=$('share');
   try{if(navigator.share){await navigator.share({title:'Block Blast',text,url});return}await navigator.clipboard.writeText(text+' '+url);b.textContent='Link copied!';setTimeout(()=>b.textContent='Share',1600)}catch(e){if(e&&e.name==='AbortError')return;b.textContent='Couldn’t share';setTimeout(()=>b.textContent='Share',1600)}};
 $('start').onclick=()=>{$('intro').classList.remove('on');go()};$('again').onclick=go;
